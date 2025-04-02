@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"fmt"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/kongzyeons/go-bank/internal/models"
 	auth_service "github.com/kongzyeons/go-bank/internal/services/api/auth"
@@ -11,6 +13,7 @@ type AuthHandler interface {
 	Register(c *fiber.Ctx) error
 	Login(c *fiber.Ctx) error
 	Ping(c *fiber.Ctx) error
+	Refresh(c *fiber.Ctx) error
 	Logout(c *fiber.Ctx) error
 }
 
@@ -32,10 +35,10 @@ func NewAuthHandler(authSvc auth_service.AuthSvc) AuthHandler {
 // @id AuthRegister
 // @accept json
 // @produce json
-// @param RegisterReq body models.RegisterReq true "request body"
+// @param AuthRegisterReq body models.AuthRegisterReq true "request body"
 // @Router /api/v1/register [post]
 func (h *authHandler) Register(c *fiber.Ctx) error {
-	var req models.RegisterReq
+	var req models.AuthRegisterReq
 	if err := c.BodyParser(&req); err != nil {
 		return response.BadRequest[any]().JSON(c)
 	}
@@ -51,10 +54,10 @@ func (h *authHandler) Register(c *fiber.Ctx) error {
 // @id AuthLogin
 // @accept json
 // @produce json
-// @param LoginReq body models.LoginReq true "request body"
+// @param AuthLoginReq body models.AuthLoginReq true "request body"
 // @Router /api/v1/login [post]
 func (h *authHandler) Login(c *fiber.Ctx) error {
-	var req models.LoginReq
+	var req models.AuthLoginReq
 	if err := c.BodyParser(&req); err != nil {
 		return response.BadRequest[any]().JSON(c)
 	}
@@ -72,8 +75,34 @@ func (h *authHandler) Login(c *fiber.Ctx) error {
 // @produce json
 // @Router /api/v1/auth/ping [get]
 func (h *authHandler) Ping(c *fiber.Ctx) error {
-	var req models.PingReq
+	req := models.AuthPingReq{
+		UserID:   fmt.Sprintf("%v", c.Locals("user_id")),
+		Username: fmt.Sprintf("%v", c.Locals("username")),
+	}
 	res := h.authSvc.Ping(req)
+	return res.JSON(c)
+}
+
+// Refresh godoc
+// @summary Refresh
+// @description Refresh
+// @tags Auth API
+// @security ApiKeyAuth
+// @id AuthRefresh
+// @accept json
+// @produce json
+// @param AuthRefreshReq body models.AuthRefreshReq true "request body"
+// @Router /api/v1/auth/refresh [post]
+func (h *authHandler) Refresh(c *fiber.Ctx) error {
+	user_id := fmt.Sprintf("%v", c.Locals("user_id"))
+	username := fmt.Sprintf("%v", c.Locals("username"))
+	var req models.AuthRefreshReq
+	if err := c.BodyParser(&req); err != nil {
+		return response.BadRequest[any]().JSON(c)
+	}
+	req.UserID = user_id
+	req.Username = username
+	res := h.authSvc.Refresh(req)
 	return res.JSON(c)
 }
 
@@ -87,6 +116,11 @@ func (h *authHandler) Ping(c *fiber.Ctx) error {
 // @produce json
 // @Router /api/v1/auth/logout [post]
 func (h *authHandler) Logout(c *fiber.Ctx) error {
-	res := h.authSvc.Logout()
+	user_id := fmt.Sprintf("%v", c.Locals("user_id"))
+
+	var req models.AuthLogoutReq
+	req.UserID = user_id
+
+	res := h.authSvc.Logout(req)
 	return res.JSON(c)
 }

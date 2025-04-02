@@ -3,6 +3,8 @@ package main
 import (
 	"github.com/kongzyeons/go-bank/cmd/api/router"
 	"github.com/kongzyeons/go-bank/config"
+	"github.com/kongzyeons/go-bank/pkg/postgresql"
+	"github.com/kongzyeons/go-bank/pkg/redis"
 )
 
 // @title API-BANK
@@ -20,9 +22,17 @@ func main() {
 	// 	log.Fatal("Error loading .env file")
 	// }
 
+	// inti redis
+	redisClient := redis.InitRedis()
+	defer redisClient.Close()
+
+	// init db
+	db := postgresql.InitPostgresql()
+	defer db.Close()
+
 	cfg := config.InitConfig()
 
-	app := router.NewServer()
-	router.NewRouter(app)
+	app := router.InitServer()
+	router.InitRouter(app, redisClient, db)
 	app.Listen(cfg.Port)
 }

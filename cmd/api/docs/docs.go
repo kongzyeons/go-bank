@@ -59,6 +59,61 @@ const docTemplate = `{
                 "responses": {}
             }
         },
+        "/api/v1/auth/refresh": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Refresh",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth API"
+                ],
+                "summary": "Refresh",
+                "operationId": "AuthRefresh",
+                "parameters": [
+                    {
+                        "description": "request body",
+                        "name": "AuthRefreshReq",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.AuthRefreshReq"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/api/v1/homepage/greeting": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "GetUserGreetings",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "HomePage API"
+                ],
+                "summary": "GetUserGreetings",
+                "operationId": "HomePageGetUserGreetings",
+                "responses": {}
+            }
+        },
         "/api/v1/login": {
             "post": {
                 "security": [
@@ -81,11 +136,11 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "description": "request body",
-                        "name": "LoginReq",
+                        "name": "AuthLoginReq",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.LoginReq"
+                            "$ref": "#/definitions/models.AuthLoginReq"
                         }
                     }
                 ],
@@ -114,11 +169,11 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "description": "request body",
-                        "name": "RegisterReq",
+                        "name": "AuthRegisterReq",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.RegisterReq"
+                            "$ref": "#/definitions/models.AuthRegisterReq"
                         }
                     }
                 ],
@@ -127,25 +182,51 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "models.LoginReq": {
+        "models.AuthLoginReq": {
             "type": "object",
+            "required": [
+                "password",
+                "username"
+            ],
             "properties": {
                 "password": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 6,
+                    "minLength": 6,
+                    "example": "123456"
                 },
                 "username": {
+                    "type": "string",
+                    "maxLength": 100,
+                    "example": "admin"
+                }
+            }
+        },
+        "models.AuthRefreshReq": {
+            "type": "object",
+            "properties": {
+                "refToken": {
                     "type": "string"
                 }
             }
         },
-        "models.RegisterReq": {
+        "models.AuthRegisterReq": {
             "type": "object",
+            "required": [
+                "password",
+                "username"
+            ],
             "properties": {
                 "password": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 6,
+                    "minLength": 6,
+                    "example": "123456"
                 },
                 "username": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 100,
+                    "example": "admin"
                 }
             }
         }

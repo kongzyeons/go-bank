@@ -1,18 +1,39 @@
 basePath: /
 definitions:
-  models.LoginReq:
+  models.AuthLoginReq:
     properties:
       password:
+        example: "123456"
+        maxLength: 6
+        minLength: 6
         type: string
       username:
+        example: admin
+        maxLength: 100
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  models.AuthRefreshReq:
+    properties:
+      refToken:
         type: string
     type: object
-  models.RegisterReq:
+  models.AuthRegisterReq:
     properties:
       password:
+        example: "123456"
+        maxLength: 6
+        minLength: 6
         type: string
       username:
+        example: admin
+        maxLength: 100
         type: string
+    required:
+    - password
+    - username
     type: object
 host: localhost:8080
 info:
@@ -49,6 +70,41 @@ paths:
       summary: Ping
       tags:
       - Auth API
+  /api/v1/auth/refresh:
+    post:
+      consumes:
+      - application/json
+      description: Refresh
+      operationId: AuthRefresh
+      parameters:
+      - description: request body
+        in: body
+        name: AuthRefreshReq
+        required: true
+        schema:
+          $ref: '#/definitions/models.AuthRefreshReq'
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - ApiKeyAuth: []
+      summary: Refresh
+      tags:
+      - Auth API
+  /api/v1/homepage/greeting:
+    get:
+      consumes:
+      - application/json
+      description: GetUserGreetings
+      operationId: HomePageGetUserGreetings
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - ApiKeyAuth: []
+      summary: GetUserGreetings
+      tags:
+      - HomePage API
   /api/v1/login:
     post:
       consumes:
@@ -58,10 +114,10 @@ paths:
       parameters:
       - description: request body
         in: body
-        name: LoginReq
+        name: AuthLoginReq
         required: true
         schema:
-          $ref: '#/definitions/models.LoginReq'
+          $ref: '#/definitions/models.AuthLoginReq'
       produces:
       - application/json
       responses: {}
@@ -79,10 +135,10 @@ paths:
       parameters:
       - description: request body
         in: body
-        name: RegisterReq
+        name: AuthRegisterReq
         required: true
         schema:
-          $ref: '#/definitions/models.RegisterReq'
+          $ref: '#/definitions/models.AuthRegisterReq'
       produces:
       - application/json
       responses: {}

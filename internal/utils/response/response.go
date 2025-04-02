@@ -73,9 +73,10 @@ func Unauthorized[T any](msgs ...string) Response[T] {
 	}
 }
 
-func Notfound[T any](message string) Response[T] {
-	if message == "" {
-		message = "Not Found"
+func Notfound[T any](msgs ...string) Response[T] {
+	message := http.StatusText(http.StatusNotFound)
+	if len(msgs) > 0 {
+		message = strings.Join(msgs, " ")
 	}
 	log.Println(message)
 

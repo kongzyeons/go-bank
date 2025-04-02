@@ -1,25 +1,38 @@
 package models
 
-type RegisterReq struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
-}
-type RegisterRes struct {
+type AuthRegisterReq struct {
+	Username string `json:"username" example:"admin" validate:"required,max=100"`
+	Password string `json:"password" example:"123456" validate:"required,min=6,max=6"`
 }
 
-type LoginReq struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
+type AuthLoginReq struct {
+	Username string `json:"username" example:"admin" validate:"required,max=100"`
+	Password string `json:"password" example:"123456" validate:"required,min=6,max=6"`
 }
-type LoginRes struct {
-	AccToken string `json:"acc_token"`
-	RefToken string `json:"ref_token"`
+type AuthLoginRes struct {
+	AccToken string `json:"accToken"`
+	RefToken string `json:"refToken"`
 }
 
-type PingReq struct {
-	RefToken string `json:"ref_token"`
+type AuthPingReq struct {
+	UserID   string `json:"-"`
+	Username string `json:"-"`
 }
-type PingRes struct {
-	AccToken string `json:"acc_token"`
-	RefToken string `json:"ref_token"`
+type AuthPingRes struct {
+	UserID   string `json:"userID"`
+	Username string `json:"username"`
+}
+
+type AuthRefreshReq struct {
+	RefToken string `json:"refToken"`
+	UserID   string `json:"-"`
+	Username string `json:"-"`
+}
+type AuthRefreshRes struct {
+	AccToken string `json:"accToken"`
+	RefToken string `json:"refToken"`
+}
+
+type AuthLogoutReq struct {
+	UserID string `json:"-"`
 }
