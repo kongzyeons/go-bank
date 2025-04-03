@@ -9,10 +9,12 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/swagger"
 	"github.com/kongzyeons/go-bank/internal/handlers"
+	banner_repo "github.com/kongzyeons/go-bank/internal/repositories/banner"
 	user_repo "github.com/kongzyeons/go-bank/internal/repositories/user"
 	usergreeting_repo "github.com/kongzyeons/go-bank/internal/repositories/user-greeting"
 	auth_service "github.com/kongzyeons/go-bank/internal/services/api/auth"
-	homepage_svc "github.com/kongzyeons/go-bank/internal/services/api/homepage"
+	banner_svc "github.com/kongzyeons/go-bank/internal/services/api/banner"
+	user_svc "github.com/kongzyeons/go-bank/internal/services/api/user"
 )
 
 func InitRouter(
@@ -24,17 +26,20 @@ func InitRouter(
 	// setup repository
 	userRepo := user_repo.NewUserRepo(db)
 	userGreetingRepo := usergreeting_repo.NewUserGreetingRepo(db)
+	bannerRepo := banner_repo.NewBannerRepo(db)
 
 	// setup services
 	authSvc := auth_service.NewAuthSvc(
 		db, redisClient,
 		userRepo, userGreetingRepo,
 	)
-	homePage := homepage_svc.NewHomePageSvc(userGreetingRepo)
+	userSvc := user_svc.NewUserSvc(userGreetingRepo)
+	bannerSvc := banner_svc.NewBannerSvc(bannerRepo)
 
 	// setup handler
 	authHandler := handlers.NewAuthHandler(authSvc)
-	homePageHandler := handlers.NewHomePageHandler(homePage)
+	userHandler := handlers.NewUserHandler(userSvc)
+	bannerHandler := handlers.NewBannerHandler(bannerSvc)
 
 	// setup route
 	app.Get("/swagger/*", swagger.HandlerDefault) // default
@@ -50,9 +55,13 @@ func InitRouter(
 	routeAuth.Post("/refresh", authHandler.Refresh)
 	routeAuth.Post("/logout", authHandler.Logout)
 
-	// homepage
-	routeHomePage := route.Group("/homepage", middlewareAuth.AuthRequired)
-	routeHomePage.Get("/greeting", homePageHandler.GetUserGreetings)
+	// user
+	routeUser := route.Group("/user", middlewareAuth.AuthRequired)
+	routeUser.Get("/greeting", userHandler.GetGeeting)
+
+	// banner
+	routeBanner := route.Group("/banner", middlewareAuth.AuthRequired)
+	routeBanner.Post("/getlist", bannerHandler.GetList)
 
 }
 

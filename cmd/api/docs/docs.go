@@ -92,14 +92,14 @@ const docTemplate = `{
                 "responses": {}
             }
         },
-        "/api/v1/homepage/greeting": {
-            "get": {
+        "/api/v1/banner/getlist": {
+            "post": {
                 "security": [
                     {
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "GetUserGreetings",
+                "description": "GetList",
                 "consumes": [
                     "application/json"
                 ],
@@ -109,8 +109,19 @@ const docTemplate = `{
                 "tags": [
                     "HomePage API"
                 ],
-                "summary": "GetUserGreetings",
-                "operationId": "HomePageGetUserGreetings",
+                "summary": "GetList",
+                "operationId": "BannerGetList",
+                "parameters": [
+                    {
+                        "description": "request body",
+                        "name": "BannerGetListReq",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.BannerGetListReq"
+                        }
+                    }
+                ],
                 "responses": {}
             }
         },
@@ -179,6 +190,28 @@ const docTemplate = `{
                 ],
                 "responses": {}
             }
+        },
+        "/api/v1/user/greeting": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "GetGeeting",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "HomePage API"
+                ],
+                "summary": "GetGeeting",
+                "operationId": "UserGetGeeting",
+                "responses": {}
+            }
         }
     },
     "definitions": {
@@ -227,6 +260,38 @@ const docTemplate = `{
                     "type": "string",
                     "maxLength": 100,
                     "example": "admin"
+                }
+            }
+        },
+        "models.BannerGetListReq": {
+            "type": "object",
+            "properties": {
+                "page": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "example": 1
+                },
+                "perPage": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "example": 10
+                },
+                "searchText": {
+                    "type": "string",
+                    "example": "search by title"
+                },
+                "sortBy": {
+                    "type": "object",
+                    "properties": {
+                        "field": {
+                            "type": "string",
+                            "example": "updatedDate"
+                        },
+                        "mode": {
+                            "type": "string",
+                            "example": "desc"
+                        }
+                    }
                 }
             }
         }

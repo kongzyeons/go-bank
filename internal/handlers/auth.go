@@ -94,14 +94,12 @@ func (h *authHandler) Ping(c *fiber.Ctx) error {
 // @param AuthRefreshReq body models.AuthRefreshReq true "request body"
 // @Router /api/v1/auth/refresh [post]
 func (h *authHandler) Refresh(c *fiber.Ctx) error {
-	user_id := fmt.Sprintf("%v", c.Locals("user_id"))
-	username := fmt.Sprintf("%v", c.Locals("username"))
 	var req models.AuthRefreshReq
 	if err := c.BodyParser(&req); err != nil {
 		return response.BadRequest[any]().JSON(c)
 	}
-	req.UserID = user_id
-	req.Username = username
+	req.UserID = fmt.Sprintf("%v", c.Locals("user_id"))
+	req.Username = fmt.Sprintf("%v", c.Locals("username"))
 	res := h.authSvc.Refresh(req)
 	return res.JSON(c)
 }

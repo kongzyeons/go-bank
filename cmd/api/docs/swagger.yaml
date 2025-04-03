@@ -35,6 +35,29 @@ definitions:
     - password
     - username
     type: object
+  models.BannerGetListReq:
+    properties:
+      page:
+        example: 1
+        minimum: 1
+        type: integer
+      perPage:
+        example: 10
+        minimum: 1
+        type: integer
+      searchText:
+        example: search by title
+        type: string
+      sortBy:
+        properties:
+          field:
+            example: updatedDate
+            type: string
+          mode:
+            example: desc
+            type: string
+        type: object
+    type: object
 host: localhost:8080
 info:
   contact: {}
@@ -91,18 +114,25 @@ paths:
       summary: Refresh
       tags:
       - Auth API
-  /api/v1/homepage/greeting:
-    get:
+  /api/v1/banner/getlist:
+    post:
       consumes:
       - application/json
-      description: GetUserGreetings
-      operationId: HomePageGetUserGreetings
+      description: GetList
+      operationId: BannerGetList
+      parameters:
+      - description: request body
+        in: body
+        name: BannerGetListReq
+        required: true
+        schema:
+          $ref: '#/definitions/models.BannerGetListReq'
       produces:
       - application/json
       responses: {}
       security:
       - ApiKeyAuth: []
-      summary: GetUserGreetings
+      summary: GetList
       tags:
       - HomePage API
   /api/v1/login:
@@ -147,6 +177,20 @@ paths:
       summary: Register
       tags:
       - Auth API
+  /api/v1/user/greeting:
+    get:
+      consumes:
+      - application/json
+      description: GetGeeting
+      operationId: UserGetGeeting
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - ApiKeyAuth: []
+      summary: GetGeeting
+      tags:
+      - HomePage API
 schemes:
 - http
 securityDefinitions:

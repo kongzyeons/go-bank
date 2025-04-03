@@ -1,0 +1,80 @@
+// Use DBML to define your database structure
+// Docs: https://dbml.dbdiagram.io/docs
+
+Table users {
+  user_id uuid [primary key] 
+  name varchar(100)
+  password varchar(6)
+  create_by varchar(100)
+  create_date timestamp
+  update_by varchar(100)
+  update_date timestamp
+}
+
+
+Table user_greetings{
+  user_id uuid [ref: - users.user_id] 
+  greeting text
+  create_by varchar(100)
+  create_date timestamp
+  update_by varchar(100)
+  update_date timestamp
+}
+
+
+
+Table accounts {
+  account_id uuid [primary key]
+  user_id uuid
+  type varchar(50)
+  currency varchar(10)
+  account_number varchar(20)
+  issuer varchar(100)
+  create_by varchar(100)
+  create_date timestamp
+  update_by varchar(100)
+  update_date timestamp
+}
+Ref: users.user_id < accounts.user_id
+
+
+Table account_balances{
+  account_id uuid [ref: - accounts.account_id] 
+  user_id uuid
+  amount DECIMAL(15,2) 
+  create_by varchar(100)
+  create_date timestamp
+  update_by varchar(100)
+  update_date timestamp
+}
+Ref: users.user_id < account_balances.user_id
+
+
+Table account_details{
+  account_id uuid [ref: - accounts.account_id] 
+  user_id uuid
+  color varchar(10)
+  is_main_account bool
+  progress integer
+  create_by varchar(100)
+  create_date timestamp
+  update_by varchar(100)
+  update_date timestamp
+}
+Ref: users.user_id < account_details.user_id
+
+
+Table banners {
+  banner_id uuid
+  user_id uuid
+  title varchar(255)
+  description text
+  image varchar(255)
+  create_by varchar(100)
+  create_date timestamp
+  update_by varchar(100)
+  update_date timestamp
+}
+Ref: users.user_id < banners.user_id
+
+
