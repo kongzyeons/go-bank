@@ -1,5 +1,31 @@
 basePath: /
 definitions:
+  models.AccountGetListReq:
+    properties:
+      isManinAccount:
+        example: true
+        type: boolean
+      page:
+        example: 1
+        minimum: 1
+        type: integer
+      perPage:
+        example: 10
+        minimum: 1
+        type: integer
+      searchText:
+        example: search by type or name
+        type: string
+      sortBy:
+        properties:
+          field:
+            example: updatedDate
+            type: string
+          mode:
+            example: desc
+            type: string
+        type: object
+    type: object
   models.AuthLoginReq:
     properties:
       password:
@@ -65,6 +91,27 @@ info:
   title: API-BANK
   version: "1.0"
 paths:
+  /api/v1/account/getlist:
+    post:
+      consumes:
+      - application/json
+      description: GetList
+      operationId: AccountGetList
+      parameters:
+      - description: request body
+        in: body
+        name: AccountGetListReq
+        required: true
+        schema:
+          $ref: '#/definitions/models.AccountGetListReq'
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - ApiKeyAuth: []
+      summary: GetList
+      tags:
+      - HomePage API
   /api/v1/auth/logout:
     post:
       consumes:

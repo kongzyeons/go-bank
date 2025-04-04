@@ -40,7 +40,7 @@ func (repo *bannerRepo) CreateTable() error {
 			updated_by VARCHAR(100) NULL,
 			updated_date TIMESTAMPTZ NULL
 		);
-		create index user_id_idx on public.banners using  btree (user_id);
+		create index banners_user_id_idx on public.banners using  btree (user_id);
 `
 	tx, err := repo.db.BeginTx(context.Background(), nil)
 	if err != nil {
@@ -120,7 +120,7 @@ func (repo *bannerRepo) GetList(req models.BannerGetListReq) (res []orm.Banner, 
 
 	condition = fmt.Sprintf(`%s %s %s`, condition, conditionSearch, conditionUserID)
 
-	queryCount := fmt.Sprintf(`SELECT COUNT(*) %s %s`, from, condition)
+	queryCount := fmt.Sprintf(`SELECT COUNT(*) %s %s;`, from, condition)
 	err = repo.db.Get(&total, repo.db.Rebind(queryCount), params...)
 	if postgresql.IsSQLReallyError(err) {
 		return res, total, err

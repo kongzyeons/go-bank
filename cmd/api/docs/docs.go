@@ -15,6 +15,39 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/api/v1/account/getlist": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "GetList",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "HomePage API"
+                ],
+                "summary": "GetList",
+                "operationId": "AccountGetList",
+                "parameters": [
+                    {
+                        "description": "request body",
+                        "name": "AccountGetListReq",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.AccountGetListReq"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        },
         "/api/v1/auth/logout": {
             "post": {
                 "security": [
@@ -215,6 +248,42 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "models.AccountGetListReq": {
+            "type": "object",
+            "properties": {
+                "isManinAccount": {
+                    "type": "boolean",
+                    "example": true
+                },
+                "page": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "example": 1
+                },
+                "perPage": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "example": 10
+                },
+                "searchText": {
+                    "type": "string",
+                    "example": "search by type or name"
+                },
+                "sortBy": {
+                    "type": "object",
+                    "properties": {
+                        "field": {
+                            "type": "string",
+                            "example": "updatedDate"
+                        },
+                        "mode": {
+                            "type": "string",
+                            "example": "desc"
+                        }
+                    }
+                }
+            }
+        },
         "models.AuthLoginReq": {
             "type": "object",
             "required": [

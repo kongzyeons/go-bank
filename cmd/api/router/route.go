@@ -9,9 +9,11 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/swagger"
 	"github.com/kongzyeons/go-bank/internal/handlers"
+	account_repo "github.com/kongzyeons/go-bank/internal/repositories/account"
 	banner_repo "github.com/kongzyeons/go-bank/internal/repositories/banner"
 	user_repo "github.com/kongzyeons/go-bank/internal/repositories/user"
 	usergreeting_repo "github.com/kongzyeons/go-bank/internal/repositories/user-greeting"
+	account_svc "github.com/kongzyeons/go-bank/internal/services/api/account"
 	auth_service "github.com/kongzyeons/go-bank/internal/services/api/auth"
 	banner_svc "github.com/kongzyeons/go-bank/internal/services/api/banner"
 	user_svc "github.com/kongzyeons/go-bank/internal/services/api/user"
@@ -27,6 +29,7 @@ func InitRouter(
 	userRepo := user_repo.NewUserRepo(db)
 	userGreetingRepo := usergreeting_repo.NewUserGreetingRepo(db)
 	bannerRepo := banner_repo.NewBannerRepo(db)
+	accountRepo := account_repo.NewAccountRepo(db)
 
 	// setup services
 	authSvc := auth_service.NewAuthSvc(
@@ -35,11 +38,13 @@ func InitRouter(
 	)
 	userSvc := user_svc.NewUserSvc(userGreetingRepo)
 	bannerSvc := banner_svc.NewBannerSvc(bannerRepo)
+	accountSvc := account_svc.NewAccountSvc(accountRepo)
 
 	// setup handler
 	authHandler := handlers.NewAuthHandler(authSvc)
 	userHandler := handlers.NewUserHandler(userSvc)
 	bannerHandler := handlers.NewBannerHandler(bannerSvc)
+	accountHandler := handlers.NewAccountHandler(accountSvc)
 
 	// setup route
 	app.Get("/swagger/*", swagger.HandlerDefault) // default
@@ -62,6 +67,10 @@ func InitRouter(
 	// banner
 	routeBanner := route.Group("/banner", middlewareAuth.AuthRequired)
 	routeBanner.Post("/getlist", bannerHandler.GetList)
+
+	// account
+	routeAccount := route.Group("/account", middlewareAuth.AuthRequired)
+	routeAccount.Post("/getlist", accountHandler.GetList)
 
 }
 
