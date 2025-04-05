@@ -49,3 +49,11 @@ func editToUpdate(req models.AccountEditReq, dataDB orm.AccountDetail) orm.Accou
 	dataDB.UpdatedDate = types.NewNullTime(timeNow)
 	return dataDB
 }
+
+func setIsmainToUpdate(req models.AccountSetIsmainReq, dataDB orm.AccountDetail, ismain bool) orm.AccountDetail {
+	timeNow := time.Now().UTC()
+	dataDB.IsManinAccount = ismain
+	dataDB.UpdatedBy = types.NewNullString(strings.TrimSpace(req.Username))
+	dataDB.UpdatedDate = types.NewNullTime(timeNow)
+	return dataDB
+}

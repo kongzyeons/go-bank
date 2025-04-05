@@ -40,6 +40,18 @@ definitions:
             type: string
         type: object
     type: object
+  models.AccountSetIsmainReq:
+    properties:
+      accountID:
+        example: accountID
+        type: string
+      accountIDIsmain:
+        example: accountIDIsmain
+        type: string
+    required:
+    - accountID
+    - accountIDIsmain
+    type: object
   models.AuthLoginReq:
     properties:
       password:
@@ -157,6 +169,26 @@ paths:
       summary: Edit
       tags:
       - Account API
+  /api/v1/account/getQrcode/{accountID}:
+    get:
+      consumes:
+      - application/json
+      description: GetQrcode
+      operationId: AccountGetQrcode
+      parameters:
+      - description: accountID
+        in: path
+        name: accountID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - ApiKeyAuth: []
+      summary: GetQrcode
+      tags:
+      - Account API
   /api/v1/account/getlist:
     post:
       consumes:
@@ -178,6 +210,27 @@ paths:
       summary: GetList
       tags:
       - HomePage API
+  /api/v1/account/setIsmain:
+    put:
+      consumes:
+      - application/json
+      description: SetIsmain
+      operationId: AccountSetIsmain
+      parameters:
+      - description: request body
+        in: body
+        name: AccountSetIsmainReq
+        required: true
+        schema:
+          $ref: '#/definitions/models.AccountSetIsmainReq'
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - ApiKeyAuth: []
+      summary: SetIsmain
+      tags:
+      - Account API
   /api/v1/auth/logout:
     post:
       consumes:

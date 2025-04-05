@@ -86,6 +86,8 @@ func InitRouter(
 	routeAccount := route.Group("/account", middlewareAuth.AuthRequired)
 	routeAccount.Post("/getlist", accountHandler.GetList)
 	routeAccount.Put("/edit/:accountID", accountHandler.Edit)
+	routeAccount.Put("/setIsmain", accountHandler.SetIsmain)
+	routeAccount.Get("/getQrcode/:accountID", accountHandler.GetQrcode)
 
 	// debitCard
 	routeDebitCard := route.Group("/debitCard", middlewareAuth.AuthRequired)

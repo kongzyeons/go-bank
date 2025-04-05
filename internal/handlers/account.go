@@ -12,6 +12,8 @@ import (
 type AccountHandler interface {
 	GetList(c *fiber.Ctx) error
 	Edit(c *fiber.Ctx) error
+	GetQrcode(c *fiber.Ctx) error
+	SetIsmain(c *fiber.Ctx) error
 }
 
 type accountHandler struct {
@@ -64,5 +66,43 @@ func (h *accountHandler) Edit(c *fiber.Ctx) error {
 	req.UserID = fmt.Sprintf("%v", c.Locals("user_id"))
 	req.Username = fmt.Sprintf("%v", c.Locals("username"))
 	res := h.accountSvc.Edit(req)
+	return res.JSON(c)
+}
+
+// GetQrcode godoc
+// @summary GetQrcode
+// @description GetQrcode
+// @tags Account API
+// @security ApiKeyAuth
+// @id AccountGetQrcode
+// @accept json
+// @produce json
+// @param accountID path string true "accountID"
+// @Router /api/v1/account/getQrcode/{accountID} [get]
+func (h *accountHandler) GetQrcode(c *fiber.Ctx) error {
+	req := models.AccountGetQrcodeReq{
+		AccountID: c.Params("accountID"),
+	}
+	res := h.accountSvc.GetQrcode(req)
+	return res.JSON(c)
+}
+
+// SetIsmain godoc
+// @summary SetIsmain
+// @description SetIsmain
+// @tags Account API
+// @security ApiKeyAuth
+// @id AccountSetIsmain
+// @accept json
+// @produce json
+// @param AccountSetIsmainReq body models.AccountSetIsmainReq true "request body"
+// @Router /api/v1/account/setIsmain [put]
+func (h *accountHandler) SetIsmain(c *fiber.Ctx) error {
+	var req models.AccountSetIsmainReq
+	if err := c.BodyParser(&req); err != nil {
+		return response.BadRequest[any]().JSON(c)
+	}
+	req.Username = fmt.Sprintf("%v", c.Locals("username"))
+	res := h.accountSvc.SetIsmain(req)
 	return res.JSON(c)
 }

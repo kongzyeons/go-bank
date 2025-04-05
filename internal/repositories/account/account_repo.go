@@ -3,6 +3,7 @@ package account_repo
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"reflect"
 	"strings"
@@ -18,6 +19,7 @@ type AccountRepo interface {
 	CreateTableView() error
 	Insert(tx *sql.Tx, req orm.Account) (accountID string, err error)
 	GetList(req models.AccountGetListReq) (res []orm.AccountVW, total int64, err error)
+	GetByID(accountID string) (res *orm.Account, err error)
 }
 
 type accountRepo struct {
@@ -220,4 +222,26 @@ func (repo *accountRepo) GetList(req models.AccountGetListReq) (res []orm.Accoun
 		return res, total, err
 	}
 	return res, total, err
+}
+
+func (repo *accountRepo) GetByID(accountID string) (res *orm.Account, err error) {
+	params := make([]interface{}, 1)
+	params[0] = accountID
+
+	sl := `SELECT *`
+	from := fmt.Sprintf(`FROM %s`, "accounts")
+	condition := `WHERE account_id = $1`
+	query := fmt.Sprintf(`%s %s %s`, sl, from, condition)
+
+	var result orm.Account
+	err = repo.db.Get(&result, query, params...)
+	if postgresql.IsSQLReallyError(err) {
+		return nil, err
+	}
+
+	if errors.Is(err, sql.ErrNoRows) {
+		return nil, nil
+	}
+
+	return &result, err
 }

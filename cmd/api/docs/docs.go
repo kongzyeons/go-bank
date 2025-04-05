@@ -55,6 +55,37 @@ const docTemplate = `{
                 "responses": {}
             }
         },
+        "/api/v1/account/getQrcode/{accountID}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "GetQrcode",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Account API"
+                ],
+                "summary": "GetQrcode",
+                "operationId": "AccountGetQrcode",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "accountID",
+                        "name": "accountID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
         "/api/v1/account/getlist": {
             "post": {
                 "security": [
@@ -82,6 +113,39 @@ const docTemplate = `{
                         "required": true,
                         "schema": {
                             "$ref": "#/definitions/models.AccountGetListReq"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/api/v1/account/setIsmain": {
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "SetIsmain",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Account API"
+                ],
+                "summary": "SetIsmain",
+                "operationId": "AccountSetIsmain",
+                "parameters": [
+                    {
+                        "description": "request body",
+                        "name": "AccountSetIsmainReq",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.AccountSetIsmainReq"
                         }
                     }
                 ],
@@ -373,6 +437,23 @@ const docTemplate = `{
                             "example": "desc"
                         }
                     }
+                }
+            }
+        },
+        "models.AccountSetIsmainReq": {
+            "type": "object",
+            "required": [
+                "accountID",
+                "accountIDIsmain"
+            ],
+            "properties": {
+                "accountID": {
+                    "type": "string",
+                    "example": "accountID"
+                },
+                "accountIDIsmain": {
+                    "type": "string",
+                    "example": "accountIDIsmain"
                 }
             }
         },

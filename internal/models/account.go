@@ -57,3 +57,21 @@ type AccountEditRes struct {
 	UpdatedBy   string    `json:"updatedBy"`
 	UpdatedDate time.Time `json:"updatedDate"`
 }
+
+type AccountGetQrcodeReq struct {
+	AccountID string `json:"-" validate:"required"`
+}
+
+type AccountGetQrcodeRes struct {
+	QrcodeBase64 string `json:"qrcodeBase64"`
+}
+
+type AccountSetIsmainReq struct {
+	AccountID       string `json:"accountID" example:"accountID" validate:"required"`
+	AccountIDIsmain string `json:"accountIDIsmain" example:"accountIDIsmain" validate:"required"`
+	Username        string `json:"-" validate:"required"`
+}
+type AccountSetIsmainRes struct {
+	UpdatedBy   string    `json:"updatedBy"`
+	UpdatedDate time.Time `json:"updatedDate"`
+}
