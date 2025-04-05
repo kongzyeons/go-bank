@@ -35,7 +35,6 @@ func (repo *accountRepo) CreateTable() error {
 	CREATE TABLE IF NOT EXISTS public.accounts (
 		account_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 		user_id UUID DEFAULT gen_random_uuid(),
-		name VARCHAR(50) NULL, 
 		type VARCHAR(50) NULL,
 		currency VARCHAR(10) NULL,
 		account_number VARCHAR(20) NULL,
@@ -75,7 +74,7 @@ func (repo *accountRepo) CreateTableView() error {
 			a.account_id,
 			a.user_id,
 			ad.is_main_account,
-			a."name",
+			ad."name",
 			a."type",
 			a.account_number,
 			a.issuer,
@@ -115,22 +114,20 @@ func (repo *accountRepo) CreateTableView() error {
 }
 
 func (repo *accountRepo) Insert(tx *sql.Tx, req orm.Account) (accountID string, err error) {
-	params := make([]interface{}, 10)
+	params := make([]interface{}, 9)
 	params[0] = req.UserID
-	params[1] = req.Name.NullString
-	params[2] = req.Type.NullString
-	params[3] = req.Currency.NullString
-	params[4] = req.AccountNumber.NullString
-	params[5] = req.Issuer.NullString
-	params[6] = req.CreatedBy
-	params[7] = req.CreatedDate
-	params[8] = req.UpdatedBy.NullString
-	params[9] = req.UpdatedDate.NullTime
+	params[1] = req.Type.NullString
+	params[2] = req.Currency.NullString
+	params[3] = req.AccountNumber.NullString
+	params[4] = req.Issuer.NullString
+	params[5] = req.CreatedBy
+	params[6] = req.CreatedDate
+	params[7] = req.UpdatedBy.NullString
+	params[8] = req.UpdatedDate.NullTime
 
 	tableInsert := `INSERT INTO public.accounts`
 	col := `(
 		user_id,
-		name,
 		type,
 		currency,
 		account_number,
@@ -141,7 +138,7 @@ func (repo *accountRepo) Insert(tx *sql.Tx, req orm.Account) (accountID string, 
 		updated_date
 	)`
 	values := `VALUES (
-		$1, $2, $3, $4, $5, $6, $7, $8, $9, $10
+		$1, $2, $3, $4, $5, $6, $7, $8, $9
 	)`
 	returning := `RETURNING account_id`
 

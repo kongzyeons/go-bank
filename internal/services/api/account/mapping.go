@@ -1,10 +1,12 @@
 package account_svc
 
 import (
+	"strings"
 	"time"
 
 	"github.com/kongzyeons/go-bank/internal/models"
 	"github.com/kongzyeons/go-bank/internal/models/orm"
+	"github.com/kongzyeons/go-bank/internal/utils/types"
 )
 
 func toBannerGetListResult(req orm.AccountVW) models.AccountGetListResult {
@@ -37,4 +39,13 @@ func toBannerGetListResult(req orm.AccountVW) models.AccountGetListResult {
 			return &updatedDate
 		}(),
 	}
+}
+
+func editToUpdate(req models.AccountEditReq, dataDB orm.AccountDetail) orm.AccountDetail {
+	timeNow := time.Now().UTC()
+	dataDB.Name = types.NewNullString(strings.TrimSpace(req.Name))
+	dataDB.Color = types.NewNullString(strings.TrimSpace(req.Color))
+	dataDB.UpdatedBy = types.NewNullString(strings.TrimSpace(req.Username))
+	dataDB.UpdatedDate = types.NewNullTime(timeNow)
+	return dataDB
 }

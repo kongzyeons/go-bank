@@ -10,8 +10,10 @@ import (
 	"github.com/gofiber/swagger"
 	"github.com/kongzyeons/go-bank/internal/handlers"
 	account_repo "github.com/kongzyeons/go-bank/internal/repositories/account"
+	accountdetail_repo "github.com/kongzyeons/go-bank/internal/repositories/account-detail"
 	banner_repo "github.com/kongzyeons/go-bank/internal/repositories/banner"
 	debitcard_repo "github.com/kongzyeons/go-bank/internal/repositories/debit-card"
+	transaction_repo "github.com/kongzyeons/go-bank/internal/repositories/transaction"
 	user_repo "github.com/kongzyeons/go-bank/internal/repositories/user"
 	usergreeting_repo "github.com/kongzyeons/go-bank/internal/repositories/user-greeting"
 	account_svc "github.com/kongzyeons/go-bank/internal/services/api/account"
@@ -32,16 +34,23 @@ func InitRouter(
 	userGreetingRepo := usergreeting_repo.NewUserGreetingRepo(db)
 	bannerRepo := banner_repo.NewBannerRepo(db)
 	accountRepo := account_repo.NewAccountRepo(db)
+	accountDetailRepo := accountdetail_repo.NewAccountDetailRepo(db)
 	debitCardRepo := debitcard_repo.NewDebitCardRepo(db)
+	transectionRepo := transaction_repo.NewTransactionRepo(db)
 
 	// setup services
 	authSvc := auth_service.NewAuthSvc(
 		db, redisClient,
 		userRepo, userGreetingRepo,
+		transectionRepo,
 	)
 	userSvc := user_svc.NewUserSvc(userGreetingRepo)
 	bannerSvc := banner_svc.NewBannerSvc(bannerRepo)
-	accountSvc := account_svc.NewAccountSvc(accountRepo)
+	accountSvc := account_svc.NewAccountSvc(
+		db,
+		accountRepo, accountDetailRepo,
+		transectionRepo,
+	)
 	debitCardSvc := debitcard_svc.NewDebitCardSvc(debitCardRepo)
 
 	// setup handler
@@ -76,6 +85,7 @@ func InitRouter(
 	// account
 	routeAccount := route.Group("/account", middlewareAuth.AuthRequired)
 	routeAccount.Post("/getlist", accountHandler.GetList)
+	routeAccount.Put("/edit/:accountID", accountHandler.Edit)
 
 	// debitCard
 	routeDebitCard := route.Group("/debitCard", middlewareAuth.AuthRequired)

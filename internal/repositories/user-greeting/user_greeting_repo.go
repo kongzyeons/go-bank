@@ -38,7 +38,7 @@ func (repo *uerGreetingRepo) CreateTable() error {
 			updated_by VARCHAR(100) NULL,
 			updated_date TIMESTAMPTZ NULL
 		);
-`
+	`
 	tx, err := repo.db.BeginTx(context.Background(), nil)
 	if err != nil {
 		tx.Rollback()

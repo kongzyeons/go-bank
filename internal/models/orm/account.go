@@ -9,7 +9,6 @@ import (
 type Account struct {
 	AccountID     string              `db:"account_id"`
 	UserID        string              `db:"user_id"`
-	Name          types.SQLNullString `db:"name"`
 	Type          types.SQLNullString `db:"type"`
 	Currency      types.SQLNullString `db:"currency"`
 	AccountNumber types.SQLNullString `db:"account_number"`

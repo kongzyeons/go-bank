@@ -11,6 +11,7 @@ import (
 
 type AccountHandler interface {
 	GetList(c *fiber.Ctx) error
+	Edit(c *fiber.Ctx) error
 }
 
 type accountHandler struct {
@@ -40,5 +41,28 @@ func (h *accountHandler) GetList(c *fiber.Ctx) error {
 	}
 	req.UserID = fmt.Sprintf("%v", c.Locals("user_id"))
 	res := h.accountSvc.GetList(req)
+	return res.JSON(c)
+}
+
+// Edit godoc
+// @summary Edit
+// @description Edit
+// @tags Account API
+// @security ApiKeyAuth
+// @id AccountEdit
+// @accept json
+// @produce json
+// @param accountID path string true "accountID"
+// @param AccountEditReq body models.AccountEditReq true "request body"
+// @Router /api/v1/account/edit/{accountID} [put]
+func (h *accountHandler) Edit(c *fiber.Ctx) error {
+	var req models.AccountEditReq
+	if err := c.BodyParser(&req); err != nil {
+		return response.BadRequest[any]().JSON(c)
+	}
+	req.AccountID = c.Params("accountID")
+	req.UserID = fmt.Sprintf("%v", c.Locals("user_id"))
+	req.Username = fmt.Sprintf("%v", c.Locals("username"))
+	res := h.accountSvc.Edit(req)
 	return res.JSON(c)
 }

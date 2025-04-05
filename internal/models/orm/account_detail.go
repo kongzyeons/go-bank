@@ -9,6 +9,7 @@ import (
 type AccountDetail struct {
 	AccountID      string              `db:"account_id"`
 	UserID         string              `db:"user_id"`
+	Name           types.SQLNullString `db:"name"`
 	Color          types.SQLNullString `db:"color"`
 	IsManinAccount bool                `db:"is_main_account"`
 	Progress       types.SQLNullInt64  `db:"progress"`

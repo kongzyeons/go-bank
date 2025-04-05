@@ -34,5 +34,6 @@ type AuthRefreshRes struct {
 }
 
 type AuthLogoutReq struct {
-	UserID string `json:"-"`
+	UserID   string `json:"-"`
+	Username string `json:"-"`
 }

@@ -1,25 +1,45 @@
 package account_svc
 
 import (
+	"context"
 	"math"
+	"strings"
+	"time"
 
+	"github.com/jmoiron/sqlx"
 	"github.com/kongzyeons/go-bank/internal/models"
+	"github.com/kongzyeons/go-bank/internal/models/orm"
 	account_repo "github.com/kongzyeons/go-bank/internal/repositories/account"
+	accountdetail_repo "github.com/kongzyeons/go-bank/internal/repositories/account-detail"
+	transaction_repo "github.com/kongzyeons/go-bank/internal/repositories/transaction"
 	"github.com/kongzyeons/go-bank/internal/utils/response"
+	"github.com/kongzyeons/go-bank/internal/utils/types"
 	"github.com/kongzyeons/go-bank/internal/utils/validation"
 )
 
 type AccountSvc interface {
 	GetList(req models.AccountGetListReq) response.Response[*models.AccountGetListRes]
+	Edit(req models.AccountEditReq) response.Response[*models.AccountEditRes]
 }
 
 type accountSvc struct {
-	accountRepo account_repo.AccountRepo
+	db                *sqlx.DB
+	accountRepo       account_repo.AccountRepo
+	accountDetailRepo accountdetail_repo.AccountDetailRepo
+	transectionRepo   transaction_repo.TransactionRepo
 }
 
-func NewAccountSvc(accountRepo account_repo.AccountRepo) AccountSvc {
+func NewAccountSvc(
+	db *sqlx.DB,
+	accountRepo account_repo.AccountRepo,
+	accountDetailRepo accountdetail_repo.AccountDetailRepo,
+	transectionRepo transaction_repo.TransactionRepo,
+) AccountSvc {
 	return &accountSvc{
-		accountRepo: accountRepo,
+		db:                db,
+		accountRepo:       accountRepo,
+		accountDetailRepo: accountDetailRepo,
+		transectionRepo:   transectionRepo,
 	}
 }
 
@@ -86,4 +106,51 @@ func (svc *accountSvc) GetList(req models.AccountGetListReq) response.Response[*
 		PerPage:      req.PerPage,
 	}
 	return response.Ok(&res)
+}
+
+func (svc *accountSvc) Edit(req models.AccountEditReq) response.Response[*models.AccountEditRes] {
+	if valMap := validation.ValidateReq(&req); len(valMap) > 0 {
+		return response.ValidationFailed[*models.AccountEditRes](valMap)
+	}
+
+	dataDB, err := svc.accountDetailRepo.GetByID(strings.TrimSpace(req.AccountID))
+	if err != nil {
+		return response.InternalServerError[*models.AccountEditRes](err, err.Error())
+	}
+	if dataDB == nil {
+		return response.BadRequest[*models.AccountEditRes]("account id not found")
+	}
+	// begin transection
+	tx, err := svc.db.BeginTx(context.Background(), nil)
+	if err != nil {
+		tx.Rollback()
+		return response.InternalServerError[*models.AccountEditRes](err, err.Error())
+	}
+
+	err = svc.accountDetailRepo.Update(tx, editToUpdate(req, *dataDB))
+	if err != nil {
+		return response.InternalServerError[*models.AccountEditRes](err, err.Error())
+	}
+	err = svc.transectionRepo.Insert(tx, orm.Transaction{
+		UserID:      dataDB.UserID,
+		Name:        types.NewNullString("account:edit"),
+		CreatedBy:   req.Name,
+		CreatedDate: time.Now().UTC(),
+	})
+	if err != nil {
+		return response.InternalServerError[*models.AccountEditRes](err, err.Error())
+	}
+	//commit transaction
+	err = tx.Commit()
+	if err != nil {
+		tx.Rollback()
+		return response.InternalServerError[*models.AccountEditRes](err, err.Error())
+	}
+
+	res := &models.AccountEditRes{
+		UpdatedBy:   req.Username,
+		UpdatedDate: time.Now().UTC(),
+	}
+	return response.Ok(&res)
+
 }

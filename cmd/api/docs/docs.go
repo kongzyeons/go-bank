@@ -15,6 +15,46 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/api/v1/account/edit/{accountID}": {
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Edit",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Account API"
+                ],
+                "summary": "Edit",
+                "operationId": "AccountEdit",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "accountID",
+                        "name": "accountID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "request body",
+                        "name": "AccountEditReq",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.AccountEditReq"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        },
         "/api/v1/account/getlist": {
             "post": {
                 "security": [
@@ -281,6 +321,25 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "models.AccountEditReq": {
+            "type": "object",
+            "required": [
+                "color",
+                "name"
+            ],
+            "properties": {
+                "color": {
+                    "type": "string",
+                    "maxLength": 10,
+                    "example": "color"
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 100,
+                    "example": "name"
+                }
+            }
+        },
         "models.AccountGetListReq": {
             "type": "object",
             "properties": {

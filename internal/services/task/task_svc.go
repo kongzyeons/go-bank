@@ -11,11 +11,13 @@ import (
 	account_repo "github.com/kongzyeons/go-bank/internal/repositories/account"
 	accountbalance_repo "github.com/kongzyeons/go-bank/internal/repositories/account-balance"
 	accountdetail_repo "github.com/kongzyeons/go-bank/internal/repositories/account-detail"
+	accountflag_repo "github.com/kongzyeons/go-bank/internal/repositories/account-flags"
 	banner_repo "github.com/kongzyeons/go-bank/internal/repositories/banner"
 	debitcard_repo "github.com/kongzyeons/go-bank/internal/repositories/debit-card"
 	debitcarddesign_repo "github.com/kongzyeons/go-bank/internal/repositories/debit-card-design"
 	debitcarddetails_repo "github.com/kongzyeons/go-bank/internal/repositories/debit-card-details"
 	debitcardstatus_repo "github.com/kongzyeons/go-bank/internal/repositories/debit-card-status"
+	transaction_repo "github.com/kongzyeons/go-bank/internal/repositories/transaction"
 	user_repo "github.com/kongzyeons/go-bank/internal/repositories/user"
 	usergreeting_repo "github.com/kongzyeons/go-bank/internal/repositories/user-greeting"
 	"github.com/kongzyeons/go-bank/internal/utils/types"
@@ -34,10 +36,12 @@ type taskSvc struct {
 	accountRepo          account_repo.AccountRepo
 	accountBalanceRepo   accountbalance_repo.AccountBalanceRepo
 	accountDetailRepo    accountdetail_repo.AccountDetailRepo
+	accountFalgRepo      accountflag_repo.AccountFlagRepo
 	debitcardRepo        debitcard_repo.DebitCardRepo
 	debitcardstatuRepo   debitcardstatus_repo.DebitCardStatusRepo
 	debitCardSDetailRepo debitcarddetails_repo.DebitCardSDetailRepo
 	debitCarddesignRepo  debitcarddesign_repo.DebitCarddesignRepo
+	transectionRepo      transaction_repo.TransactionRepo
 }
 
 func NewTaskSvc(
@@ -48,10 +52,12 @@ func NewTaskSvc(
 	accountRepo account_repo.AccountRepo,
 	accountBalanceRepo accountbalance_repo.AccountBalanceRepo,
 	accountDetail accountdetail_repo.AccountDetailRepo,
+	accountFalgRepo accountflag_repo.AccountFlagRepo,
 	debitcardRepo debitcard_repo.DebitCardRepo,
 	debitcardstatuRepo debitcardstatus_repo.DebitCardStatusRepo,
 	debitCardSDetailRepo debitcarddetails_repo.DebitCardSDetailRepo,
 	debitCarddesignRepo debitcarddesign_repo.DebitCarddesignRepo,
+	transectionRepo transaction_repo.TransactionRepo,
 ) TaskSvc {
 	return &taskSvc{
 		db:                   db,
@@ -61,10 +67,12 @@ func NewTaskSvc(
 		accountRepo:          accountRepo,
 		accountBalanceRepo:   accountBalanceRepo,
 		accountDetailRepo:    accountDetail,
+		accountFalgRepo:      accountFalgRepo,
 		debitcardRepo:        debitcardRepo,
 		debitcardstatuRepo:   debitcardstatuRepo,
 		debitCardSDetailRepo: debitCardSDetailRepo,
 		debitCarddesignRepo:  debitCarddesignRepo,
+		transectionRepo:      transectionRepo,
 	}
 }
 
@@ -94,12 +102,20 @@ func (svc *taskSvc) CreateTable() {
 	log.Println("Table 'account' created successfully!")
 
 	// create debit card table
-	err = svc.createDebitCard()
+	err = svc.createTableDebitCard()
 	if err != nil {
 		log.Println(err)
 		return
 	}
 	log.Println("Table 'debit card' created successfully!")
+
+	// create transection table
+	err = svc.createTableTransection()
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	log.Println("Table 'transection' created successfully!")
 
 	// begin transection
 	tx, err := svc.db.BeginTx(context.Background(), nil)
@@ -179,11 +195,15 @@ func (svc *taskSvc) createTableAccount() error {
 	if err != nil {
 		return err
 	}
+	err = svc.accountFalgRepo.CreateTable()
+	if err != nil {
+		return err
+	}
 	err = svc.accountRepo.CreateTableView()
 	return err
 }
 
-func (svc *taskSvc) createDebitCard() error {
+func (svc *taskSvc) createTableDebitCard() error {
 	err := svc.debitcardRepo.CreateTable()
 	if err != nil {
 		return err
@@ -201,6 +221,14 @@ func (svc *taskSvc) createDebitCard() error {
 		return err
 	}
 	err = svc.debitcardRepo.CreateTableView()
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (svc *taskSvc) createTableTransection() error {
+	err := svc.transectionRepo.CreateTable()
 	if err != nil {
 		return err
 	}
@@ -270,7 +298,6 @@ func (svc *taskSvc) insertAccount(tx *sql.Tx, userID string) (err error) {
 	for i := 0; i < 5; i++ {
 		accountID, err := svc.accountRepo.Insert(tx, orm.Account{
 			UserID:        userID,
-			Name:          types.NewNullString(names[i]),
 			Type:          types.NewNullString(typeAccounts[i]),
 			Currency:      types.NewNullString("THB"),
 			AccountNumber: types.NewNullString("568-2-81740-9"),
@@ -298,6 +325,7 @@ func (svc *taskSvc) insertAccount(tx *sql.Tx, userID string) (err error) {
 		err = svc.accountDetailRepo.Insert(tx, orm.AccountDetail{
 			AccountID:      accountID,
 			UserID:         userID,
+			Name:           types.NewNullString(names[i]),
 			Color:          types.NewNullString("red"),
 			IsManinAccount: isManinAccount[i],
 			Progress:       types.NewNullInt64(progress[i]),

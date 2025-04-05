@@ -114,11 +114,10 @@ func (h *authHandler) Refresh(c *fiber.Ctx) error {
 // @produce json
 // @Router /api/v1/auth/logout [post]
 func (h *authHandler) Logout(c *fiber.Ctx) error {
-	user_id := fmt.Sprintf("%v", c.Locals("user_id"))
-
-	var req models.AuthLogoutReq
-	req.UserID = user_id
-
+	req := models.AuthLogoutReq{
+		UserID:   fmt.Sprintf("%v", c.Locals("user_id")),
+		Username: fmt.Sprintf("%v", c.Locals("username")),
+	}
 	res := h.authSvc.Logout(req)
 	return res.JSON(c)
 }

@@ -4,16 +4,19 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"strconv"
 	"strings"
 	"time"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/kongzyeons/go-bank/internal/models"
 	"github.com/kongzyeons/go-bank/internal/models/orm"
+	transaction_repo "github.com/kongzyeons/go-bank/internal/repositories/transaction"
 	user_repo "github.com/kongzyeons/go-bank/internal/repositories/user"
 	usergreeting_repo "github.com/kongzyeons/go-bank/internal/repositories/user-greeting"
 	"github.com/kongzyeons/go-bank/internal/utils/jwt"
 	"github.com/kongzyeons/go-bank/internal/utils/response"
+	"github.com/kongzyeons/go-bank/internal/utils/types"
 	"github.com/kongzyeons/go-bank/internal/utils/validation"
 	"github.com/redis/go-redis/v9"
 )
@@ -31,6 +34,7 @@ type authSvc struct {
 	redisClient      *redis.Client
 	userRepo         user_repo.UserRepo
 	userGreetingRepo usergreeting_repo.UserGreetingRepo
+	transectionRepo  transaction_repo.TransactionRepo
 }
 
 func NewAuthSvc(
@@ -38,21 +42,26 @@ func NewAuthSvc(
 	redisClient *redis.Client,
 	userRepo user_repo.UserRepo,
 	userGreetingRepo usergreeting_repo.UserGreetingRepo,
+	transectionRepo transaction_repo.TransactionRepo,
 ) AuthSvc {
 	return &authSvc{
 		db:               db,
 		redisClient:      redisClient,
 		userRepo:         userRepo,
 		userGreetingRepo: userGreetingRepo,
+		transectionRepo:  transectionRepo,
 	}
 }
 
 func (svc *authSvc) Register(req models.AuthRegisterReq) response.Response[any] {
-	// TODO : validate password
-
 	// validate
 	if valMap := validation.ValidateReq(&req); len(valMap) > 0 {
 		return response.ValidationFailed[any](valMap)
+	}
+
+	_, err := strconv.Atoi(req.Password)
+	if err != nil {
+		return response.BadRequest[any]("passeord must number")
 	}
 
 	dataDB, err := svc.userRepo.GetUnique(strings.TrimSpace(req.Username))
@@ -100,6 +109,11 @@ func (svc *authSvc) Login(req models.AuthLoginReq) response.Response[*models.Aut
 		return response.ValidationFailed[*models.AuthLoginRes](valMap)
 	}
 
+	_, err := strconv.Atoi(req.Password)
+	if err != nil {
+		return response.BadRequest[*models.AuthLoginRes]("passeord must number")
+	}
+
 	// find username from repo
 	dataDB, err := svc.userRepo.GetUnique(strings.TrimSpace(req.Username))
 	if err != nil {
@@ -113,7 +127,6 @@ func (svc *authSvc) Login(req models.AuthLoginReq) response.Response[*models.Aut
 		return response.BadRequest[*models.AuthLoginRes]("password invalid")
 	}
 
-	// key := "authSvc::userID"
 	key := fmt.Sprintf("authSvc::%s", dataDB.UserID)
 
 	// get redis
@@ -155,6 +168,29 @@ func (svc *authSvc) Login(req models.AuthLoginReq) response.Response[*models.Aut
 	}
 	err = svc.redisClient.Set(context.Background(), key, string(valu), 24*time.Hour).Err()
 	if err != nil {
+		return response.InternalServerError[*models.AuthLoginRes](err, err.Error())
+	}
+
+	// transection
+	// begin transection
+	tx, err := svc.db.BeginTx(context.Background(), nil)
+	if err != nil {
+		tx.Rollback()
+		return response.InternalServerError[*models.AuthLoginRes](err, err.Error())
+	}
+	err = svc.transectionRepo.Insert(tx, orm.Transaction{
+		UserID:      dataDB.UserID,
+		Name:        types.NewNullString("auth:login"),
+		CreatedBy:   dataDB.Name,
+		CreatedDate: time.Now().UTC(),
+	})
+	if err != nil {
+		return response.InternalServerError[*models.AuthLoginRes](err, err.Error())
+	}
+	//commit transaction
+	err = tx.Commit()
+	if err != nil {
+		tx.Rollback()
 		return response.InternalServerError[*models.AuthLoginRes](err, err.Error())
 	}
 
@@ -248,6 +284,30 @@ func (svc *authSvc) Logout(req models.AuthLogoutReq) response.Response[any] {
 
 	err = svc.redisClient.Del(context.Background(), key).Err()
 	if err != nil {
+		return response.InternalServerError[any](err, err.Error())
+	}
+
+	// transection
+	// begin transection
+	tx, err := svc.db.BeginTx(context.Background(), nil)
+	if err != nil {
+		tx.Rollback()
+		return response.InternalServerError[any](err, err.Error())
+	}
+	err = svc.transectionRepo.Insert(tx, orm.Transaction{
+		UserID:      req.UserID,
+		Name:        types.NewNullString("auth:logout"),
+		CreatedBy:   req.Username,
+		CreatedDate: time.Now().UTC(),
+	})
+	if err != nil {
+		return response.InternalServerError[any](err, err.Error())
+
+	}
+	//commit transaction
+	err = tx.Commit()
+	if err != nil {
+		tx.Rollback()
 		return response.InternalServerError[any](err, err.Error())
 	}
 

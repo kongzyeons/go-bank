@@ -1,5 +1,19 @@
 basePath: /
 definitions:
+  models.AccountEditReq:
+    properties:
+      color:
+        example: color
+        maxLength: 10
+        type: string
+      name:
+        example: name
+        maxLength: 100
+        type: string
+    required:
+    - color
+    - name
+    type: object
   models.AccountGetListReq:
     properties:
       isManinAccount:
@@ -117,6 +131,32 @@ info:
   title: API-BANK
   version: "1.0"
 paths:
+  /api/v1/account/edit/{accountID}:
+    put:
+      consumes:
+      - application/json
+      description: Edit
+      operationId: AccountEdit
+      parameters:
+      - description: accountID
+        in: path
+        name: accountID
+        required: true
+        type: string
+      - description: request body
+        in: body
+        name: AccountEditReq
+        required: true
+        schema:
+          $ref: '#/definitions/models.AccountEditReq'
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - ApiKeyAuth: []
+      summary: Edit
+      tags:
+      - Account API
   /api/v1/account/getlist:
     post:
       consumes:

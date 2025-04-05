@@ -44,3 +44,16 @@ type AccountGetListRes struct {
 	TotalAnount  float64                `json:"totalAnount"`
 	Results      []AccountGetListResult `json:"results"`
 }
+
+type AccountEditReq struct {
+	AccountID string `json:"-" validate:"required"`
+	UserID    string `json:"-" validate:"required"`
+	Username  string `json:"-" validate:"required"`
+	Name      string `json:"name" example:"name" validate:"required,max=100"`
+	Color     string `json:"color" example:"color" validate:"required,max=10"`
+}
+
+type AccountEditRes struct {
+	UpdatedBy   string    `json:"updatedBy"`
+	UpdatedDate time.Time `json:"updatedDate"`
+}
