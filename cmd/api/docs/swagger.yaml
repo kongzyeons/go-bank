@@ -84,6 +84,32 @@ definitions:
             type: string
         type: object
     type: object
+  models.DebitCardGetListReq:
+    properties:
+      page:
+        example: 1
+        minimum: 1
+        type: integer
+      perPage:
+        example: 10
+        minimum: 1
+        type: integer
+      searchText:
+        example: search by name
+        type: string
+      sortBy:
+        properties:
+          field:
+            example: updatedDate
+            type: string
+          mode:
+            example: desc
+            type: string
+        type: object
+      status:
+        example: ""
+        type: string
+    type: object
 host: localhost:8080
 info:
   contact: {}
@@ -174,6 +200,27 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/models.BannerGetListReq'
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - ApiKeyAuth: []
+      summary: GetList
+      tags:
+      - HomePage API
+  /api/v1/debitCard/getlist:
+    post:
+      consumes:
+      - application/json
+      description: GetList
+      operationId: debitCardGetList
+      parameters:
+      - description: request body
+        in: body
+        name: DebitCardGetListReq
+        required: true
+        schema:
+          $ref: '#/definitions/models.DebitCardGetListReq'
       produces:
       - application/json
       responses: {}

@@ -12,6 +12,10 @@ import (
 	accountbalance_repo "github.com/kongzyeons/go-bank/internal/repositories/account-balance"
 	accountdetail_repo "github.com/kongzyeons/go-bank/internal/repositories/account-detail"
 	banner_repo "github.com/kongzyeons/go-bank/internal/repositories/banner"
+	debitcard_repo "github.com/kongzyeons/go-bank/internal/repositories/debit-card"
+	debitcarddesign_repo "github.com/kongzyeons/go-bank/internal/repositories/debit-card-design"
+	debitcarddetails_repo "github.com/kongzyeons/go-bank/internal/repositories/debit-card-details"
+	debitcardstatus_repo "github.com/kongzyeons/go-bank/internal/repositories/debit-card-status"
 	user_repo "github.com/kongzyeons/go-bank/internal/repositories/user"
 	usergreeting_repo "github.com/kongzyeons/go-bank/internal/repositories/user-greeting"
 	"github.com/kongzyeons/go-bank/internal/utils/types"
@@ -23,13 +27,17 @@ type TaskSvc interface {
 }
 
 type taskSvc struct {
-	db                 *sqlx.DB
-	userRepo           user_repo.UserRepo
-	userGreetingRepo   usergreeting_repo.UserGreetingRepo
-	bannerRepo         banner_repo.BannerRepo
-	accountRepo        account_repo.AccountRepo
-	accountBalanceRepo accountbalance_repo.AccountBalanceRepo
-	accountDetailRepo  accountdetail_repo.AccountDetailRepo
+	db                   *sqlx.DB
+	userRepo             user_repo.UserRepo
+	userGreetingRepo     usergreeting_repo.UserGreetingRepo
+	bannerRepo           banner_repo.BannerRepo
+	accountRepo          account_repo.AccountRepo
+	accountBalanceRepo   accountbalance_repo.AccountBalanceRepo
+	accountDetailRepo    accountdetail_repo.AccountDetailRepo
+	debitcardRepo        debitcard_repo.DebitCardRepo
+	debitcardstatuRepo   debitcardstatus_repo.DebitCardStatusRepo
+	debitCardSDetailRepo debitcarddetails_repo.DebitCardSDetailRepo
+	debitCarddesignRepo  debitcarddesign_repo.DebitCarddesignRepo
 }
 
 func NewTaskSvc(
@@ -40,15 +48,23 @@ func NewTaskSvc(
 	accountRepo account_repo.AccountRepo,
 	accountBalanceRepo accountbalance_repo.AccountBalanceRepo,
 	accountDetail accountdetail_repo.AccountDetailRepo,
+	debitcardRepo debitcard_repo.DebitCardRepo,
+	debitcardstatuRepo debitcardstatus_repo.DebitCardStatusRepo,
+	debitCardSDetailRepo debitcarddetails_repo.DebitCardSDetailRepo,
+	debitCarddesignRepo debitcarddesign_repo.DebitCarddesignRepo,
 ) TaskSvc {
 	return &taskSvc{
-		db:                 db,
-		userRepo:           userRepo,
-		userGreetingRepo:   userGreetingRepo,
-		bannerRepo:         bannerRepo,
-		accountRepo:        accountRepo,
-		accountBalanceRepo: accountBalanceRepo,
-		accountDetailRepo:  accountDetail,
+		db:                   db,
+		userRepo:             userRepo,
+		userGreetingRepo:     userGreetingRepo,
+		bannerRepo:           bannerRepo,
+		accountRepo:          accountRepo,
+		accountBalanceRepo:   accountBalanceRepo,
+		accountDetailRepo:    accountDetail,
+		debitcardRepo:        debitcardRepo,
+		debitcardstatuRepo:   debitcardstatuRepo,
+		debitCardSDetailRepo: debitCardSDetailRepo,
+		debitCarddesignRepo:  debitCarddesignRepo,
 	}
 }
 
@@ -76,6 +92,14 @@ func (svc *taskSvc) CreateTable() {
 		return
 	}
 	log.Println("Table 'account' created successfully!")
+
+	// create debit card table
+	err = svc.createDebitCard()
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	log.Println("Table 'debit card' created successfully!")
 
 	// begin transection
 	tx, err := svc.db.BeginTx(context.Background(), nil)
@@ -108,6 +132,14 @@ func (svc *taskSvc) CreateTable() {
 		return
 	}
 	log.Println("Insert 'acocunts' successfully!")
+
+	// insert debit card
+	err = svc.insertDebitCard(tx, userID)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	log.Println("Insert 'debit card' successfully!")
 
 	//commit transaction
 	err = tx.Commit()
@@ -149,6 +181,30 @@ func (svc *taskSvc) createTableAccount() error {
 	}
 	err = svc.accountRepo.CreateTableView()
 	return err
+}
+
+func (svc *taskSvc) createDebitCard() error {
+	err := svc.debitcardRepo.CreateTable()
+	if err != nil {
+		return err
+	}
+	err = svc.debitcardstatuRepo.CreateTable()
+	if err != nil {
+		return err
+	}
+	err = svc.debitCardSDetailRepo.CreateTable()
+	if err != nil {
+		return err
+	}
+	err = svc.debitCarddesignRepo.CreateTable()
+	if err != nil {
+		return err
+	}
+	err = svc.debitcardRepo.CreateTableView()
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (svc *taskSvc) insertUser(tx *sql.Tx) (userID string, err error) {
@@ -249,6 +305,65 @@ func (svc *taskSvc) insertAccount(tx *sql.Tx, userID string) (err error) {
 			CreatedDate:    timeNow,
 			UpdatedBy:      types.NewNullString("admin"),
 			UpdatedDate:    types.NewNullTime(timeNow),
+		})
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (svc *taskSvc) insertDebitCard(tx *sql.Tx, userID string) (err error) {
+	timeNow := time.Now().UTC()
+	names := []string{"My Salary", "For My Dream", "For My Dream", "For My Dream"}
+	status := []string{"In progress", "In progress", "", ""}
+	numbers := []string{"", "", "9440-78xx-xxxx-3115", "9440-78xx-xxxx-3115"}
+	for i := 0; i < 4; i++ {
+		cardID, err := svc.debitcardRepo.Insert(tx, orm.DebitCard{
+			UserID:      userID,
+			Name:        types.NewNullString(names[i]),
+			CreatedBy:   "admin",
+			CreatedDate: timeNow,
+			UpdatedBy:   types.NewNullString("admin"),
+			UpdatedDate: types.NewNullTime(timeNow),
+		})
+		if err != nil {
+			return err
+		}
+		err = svc.debitcardstatuRepo.Insert(tx, orm.DebitCardStatus{
+			CardID:      cardID,
+			UserID:      userID,
+			Status:      types.NewNullString(status[i]),
+			CreatedBy:   "admin",
+			CreatedDate: timeNow,
+			UpdatedBy:   types.NewNullString("admin"),
+			UpdatedDate: types.NewNullTime(timeNow),
+		})
+		if err != nil {
+			return err
+		}
+		err = svc.debitCardSDetailRepo.Insert(tx, orm.DebitCardDetail{
+			CardID:      cardID,
+			UserID:      userID,
+			Issuer:      types.NewNullString("TestLab"),
+			Number:      types.NewNullString(numbers[i]),
+			CreatedBy:   "admin",
+			CreatedDate: timeNow,
+			UpdatedBy:   types.NewNullString("admin"),
+			UpdatedDate: types.NewNullTime(timeNow),
+		})
+		if err != nil {
+			return err
+		}
+		err = svc.debitCarddesignRepo.Insert(tx, orm.DebitCardDesign{
+			CardID:      cardID,
+			UserID:      userID,
+			Color:       types.NewNullString("red"),
+			BorderColor: types.NewNullString("blue"),
+			CreatedBy:   "admin",
+			CreatedDate: timeNow,
+			UpdatedBy:   types.NewNullString("admin"),
+			UpdatedDate: types.NewNullTime(timeNow),
 		})
 		if err != nil {
 			return err

@@ -11,11 +11,13 @@ import (
 	"github.com/kongzyeons/go-bank/internal/handlers"
 	account_repo "github.com/kongzyeons/go-bank/internal/repositories/account"
 	banner_repo "github.com/kongzyeons/go-bank/internal/repositories/banner"
+	debitcard_repo "github.com/kongzyeons/go-bank/internal/repositories/debit-card"
 	user_repo "github.com/kongzyeons/go-bank/internal/repositories/user"
 	usergreeting_repo "github.com/kongzyeons/go-bank/internal/repositories/user-greeting"
 	account_svc "github.com/kongzyeons/go-bank/internal/services/api/account"
 	auth_service "github.com/kongzyeons/go-bank/internal/services/api/auth"
 	banner_svc "github.com/kongzyeons/go-bank/internal/services/api/banner"
+	debitcard_svc "github.com/kongzyeons/go-bank/internal/services/api/debit-card"
 	user_svc "github.com/kongzyeons/go-bank/internal/services/api/user"
 )
 
@@ -30,6 +32,7 @@ func InitRouter(
 	userGreetingRepo := usergreeting_repo.NewUserGreetingRepo(db)
 	bannerRepo := banner_repo.NewBannerRepo(db)
 	accountRepo := account_repo.NewAccountRepo(db)
+	debitCardRepo := debitcard_repo.NewDebitCardRepo(db)
 
 	// setup services
 	authSvc := auth_service.NewAuthSvc(
@@ -39,12 +42,14 @@ func InitRouter(
 	userSvc := user_svc.NewUserSvc(userGreetingRepo)
 	bannerSvc := banner_svc.NewBannerSvc(bannerRepo)
 	accountSvc := account_svc.NewAccountSvc(accountRepo)
+	debitCardSvc := debitcard_svc.NewDebitCardSvc(debitCardRepo)
 
 	// setup handler
 	authHandler := handlers.NewAuthHandler(authSvc)
 	userHandler := handlers.NewUserHandler(userSvc)
 	bannerHandler := handlers.NewBannerHandler(bannerSvc)
 	accountHandler := handlers.NewAccountHandler(accountSvc)
+	debitCardHandler := handlers.NewDebitCardHandler(debitCardSvc)
 
 	// setup route
 	app.Get("/swagger/*", swagger.HandlerDefault) // default
@@ -71,6 +76,10 @@ func InitRouter(
 	// account
 	routeAccount := route.Group("/account", middlewareAuth.AuthRequired)
 	routeAccount.Post("/getlist", accountHandler.GetList)
+
+	// debitCard
+	routeDebitCard := route.Group("/debitCard", middlewareAuth.AuthRequired)
+	routeDebitCard.Post("/getlist", debitCardHandler.GetList)
 
 }
 

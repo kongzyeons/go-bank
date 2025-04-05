@@ -158,6 +158,39 @@ const docTemplate = `{
                 "responses": {}
             }
         },
+        "/api/v1/debitCard/getlist": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "GetList",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "HomePage API"
+                ],
+                "summary": "GetList",
+                "operationId": "debitCardGetList",
+                "parameters": [
+                    {
+                        "description": "request body",
+                        "name": "DebitCardGetListReq",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.DebitCardGetListReq"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        },
         "/api/v1/login": {
             "post": {
                 "security": [
@@ -361,6 +394,42 @@ const docTemplate = `{
                             "example": "desc"
                         }
                     }
+                }
+            }
+        },
+        "models.DebitCardGetListReq": {
+            "type": "object",
+            "properties": {
+                "page": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "example": 1
+                },
+                "perPage": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "example": 10
+                },
+                "searchText": {
+                    "type": "string",
+                    "example": "search by name"
+                },
+                "sortBy": {
+                    "type": "object",
+                    "properties": {
+                        "field": {
+                            "type": "string",
+                            "example": "updatedDate"
+                        },
+                        "mode": {
+                            "type": "string",
+                            "example": "desc"
+                        }
+                    }
+                },
+                "status": {
+                    "type": "string",
+                    "example": ""
                 }
             }
         }

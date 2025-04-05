@@ -48,6 +48,8 @@ func NewAuthSvc(
 }
 
 func (svc *authSvc) Register(req models.AuthRegisterReq) response.Response[any] {
+	// TODO : validate password
+
 	// validate
 	if valMap := validation.ValidateReq(&req); len(valMap) > 0 {
 		return response.ValidationFailed[any](valMap)
