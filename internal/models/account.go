@@ -60,6 +60,7 @@ type AccountEditRes struct {
 
 type AccountGetQrcodeReq struct {
 	AccountID string `json:"-" validate:"required"`
+	UserID    string `json:"-" validate:"required"`
 }
 
 type AccountGetQrcodeRes struct {
@@ -70,8 +71,23 @@ type AccountSetIsmainReq struct {
 	AccountID       string `json:"accountID" example:"accountID" validate:"required"`
 	AccountIDIsmain string `json:"accountIDIsmain" example:"accountIDIsmain" validate:"required"`
 	Username        string `json:"-" validate:"required"`
+	UserID          string `json:"-" validate:"required"`
 }
 type AccountSetIsmainRes struct {
 	UpdatedBy   string    `json:"updatedBy"`
 	UpdatedDate time.Time `json:"updatedDate"`
+}
+
+type AccountAddMoneyReq struct {
+	UserID    string  `json:"-" validate:"required"`
+	Username  string  `json:"-" validate:"required"`
+	AccountID string  `json:"-" validate:"required"`
+	Ammount   float64 `json:"ammount" example:"1" validate:"required,gt=0"`
+	Currency  string  `json:"currency" example:"THB" validate:"required"`
+}
+
+type AccountAddMoneyRes struct {
+	AccountID     string  `json:"accountID"`
+	AmmountAdd    float64 `json:"ammountAdd"`
+	AmmountResult float64 `json:"ammountResult"`
 }

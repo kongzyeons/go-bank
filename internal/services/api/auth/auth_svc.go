@@ -302,7 +302,6 @@ func (svc *authSvc) Logout(req models.AuthLogoutReq) response.Response[any] {
 	})
 	if err != nil {
 		return response.InternalServerError[any](err, err.Error())
-
 	}
 	//commit transaction
 	err = tx.Commit()

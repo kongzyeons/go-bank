@@ -15,6 +15,46 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/api/v1/account/addMoney/{accountID}": {
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "AddMoney",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Account API"
+                ],
+                "summary": "AddMoney",
+                "operationId": "AccountAddMoney",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "accountID",
+                        "name": "accountID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "request body",
+                        "name": "AccountAddMoneyReq",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.AccountAddMoneyReq"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        },
         "/api/v1/account/edit/{accountID}": {
             "put": {
                 "security": [
@@ -385,6 +425,23 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "models.AccountAddMoneyReq": {
+            "type": "object",
+            "required": [
+                "ammount",
+                "currency"
+            ],
+            "properties": {
+                "ammount": {
+                    "type": "number",
+                    "example": 1
+                },
+                "currency": {
+                    "type": "string",
+                    "example": "THB"
+                }
+            }
+        },
         "models.AccountEditReq": {
             "type": "object",
             "required": [

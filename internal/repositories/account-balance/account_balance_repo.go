@@ -3,6 +3,7 @@ package accountbalance_repo
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 
 	"github.com/jmoiron/sqlx"
@@ -13,6 +14,8 @@ import (
 type AccountBalanceRepo interface {
 	CreateTable() error
 	Insert(tx *sql.Tx, req orm.AccountBalance) error
+	Update(tx *sql.Tx, req orm.AccountBalance) error
+	GetByID(accountID string) (res *orm.AccountBalance, err error)
 }
 
 type accountBalanceRepo struct {
@@ -90,4 +93,52 @@ func (repo *accountBalanceRepo) Insert(tx *sql.Tx, req orm.AccountBalance) error
 	}
 
 	return nil
+}
+
+func (repo *accountBalanceRepo) Update(tx *sql.Tx, req orm.AccountBalance) error {
+	params := make([]interface{}, 4)
+	params[0] = req.Amount.NullFloat64
+	params[1] = req.UpdatedBy.NullString
+	params[2] = req.UpdatedDate.NullTime
+	params[3] = req.AccountID
+
+	tableUpdate := fmt.Sprintf("UPDATE %s SET", "public.account_balances")
+
+	update := `
+		amount = $1,
+		updated_by = $2,
+		updated_date = $3
+	`
+
+	where := `WHERE account_id = $4`
+
+	query := fmt.Sprintf("%s %s %s;", tableUpdate, update, where)
+	_, err := tx.Exec(query, params...)
+	if postgresql.IsSQLReallyError(err) {
+		return err
+	}
+
+	return nil
+}
+
+func (repo *accountBalanceRepo) GetByID(accountID string) (res *orm.AccountBalance, err error) {
+	params := make([]interface{}, 1)
+	params[0] = accountID
+
+	sl := `SELECT *`
+	from := fmt.Sprintf(`FROM %s`, "account_balances")
+	condition := `WHERE account_id = $1`
+	query := fmt.Sprintf(`%s %s %s`, sl, from, condition)
+
+	var result orm.AccountBalance
+	err = repo.db.Get(&result, query, params...)
+	if postgresql.IsSQLReallyError(err) {
+		return nil, err
+	}
+
+	if errors.Is(err, sql.ErrNoRows) {
+		return nil, nil
+	}
+
+	return &result, err
 }

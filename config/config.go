@@ -8,12 +8,16 @@ import (
 )
 
 type Config struct {
-	Port string
+	Port            string
+	LineAccToken    string
+	LineUserIDToken string
 }
 
 func InitConfig() Config {
 	return Config{
-		Port: getEnvString("PORT", ":8080"),
+		Port:            getEnvString("PORT", ":8080"),
+		LineAccToken:    getEnvString("LINE_ACC_TOKEN", ""),
+		LineUserIDToken: getEnvString("LINE_USER_ID_TOKEN", ""),
 	}
 }
 

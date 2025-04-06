@@ -1,6 +1,7 @@
 package router
 
 import (
+	"github.com/IBM/sarama"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/kongzyeons/go-bank/cmd/api/docs"
 	"github.com/redis/go-redis/v9"
@@ -9,7 +10,9 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/swagger"
 	"github.com/kongzyeons/go-bank/internal/handlers"
+	"github.com/kongzyeons/go-bank/internal/queues"
 	account_repo "github.com/kongzyeons/go-bank/internal/repositories/account"
+	accountbalance_repo "github.com/kongzyeons/go-bank/internal/repositories/account-balance"
 	accountdetail_repo "github.com/kongzyeons/go-bank/internal/repositories/account-detail"
 	banner_repo "github.com/kongzyeons/go-bank/internal/repositories/banner"
 	debitcard_repo "github.com/kongzyeons/go-bank/internal/repositories/debit-card"
@@ -27,7 +30,13 @@ func InitRouter(
 	app *fiber.App,
 	redisClient *redis.Client,
 	db *sqlx.DB,
+	producer sarama.SyncProducer,
 ) {
+	// setup noti
+	// lineNoti := line.NewLineAPI()
+
+	// setup queue
+	eventProducer := queues.NewEventProducer(producer)
 
 	// setup repository
 	userRepo := user_repo.NewUserRepo(db)
@@ -35,6 +44,7 @@ func InitRouter(
 	bannerRepo := banner_repo.NewBannerRepo(db)
 	accountRepo := account_repo.NewAccountRepo(db)
 	accountDetailRepo := accountdetail_repo.NewAccountDetailRepo(db)
+	accountBalanceRepo := accountbalance_repo.NewaccountBalanceRepo(db)
 	debitCardRepo := debitcard_repo.NewDebitCardRepo(db)
 	transectionRepo := transaction_repo.NewTransactionRepo(db)
 
@@ -47,8 +57,8 @@ func InitRouter(
 	userSvc := user_svc.NewUserSvc(userGreetingRepo)
 	bannerSvc := banner_svc.NewBannerSvc(bannerRepo)
 	accountSvc := account_svc.NewAccountSvc(
-		db,
-		accountRepo, accountDetailRepo,
+		db, eventProducer,
+		accountRepo, accountDetailRepo, accountBalanceRepo,
 		transectionRepo,
 	)
 	debitCardSvc := debitcard_svc.NewDebitCardSvc(debitCardRepo)
@@ -88,6 +98,7 @@ func InitRouter(
 	routeAccount.Put("/edit/:accountID", accountHandler.Edit)
 	routeAccount.Put("/setIsmain", accountHandler.SetIsmain)
 	routeAccount.Get("/getQrcode/:accountID", accountHandler.GetQrcode)
+	routeAccount.Put("/addMoney/:accountID", accountHandler.AddMoney)
 
 	// debitCard
 	routeDebitCard := route.Group("/debitCard", middlewareAuth.AuthRequired)

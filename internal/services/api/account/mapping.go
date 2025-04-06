@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/kongzyeons/go-bank/internal/models"
+	"github.com/kongzyeons/go-bank/internal/models/events"
 	"github.com/kongzyeons/go-bank/internal/models/orm"
 	"github.com/kongzyeons/go-bank/internal/utils/types"
 )
@@ -56,4 +57,14 @@ func setIsmainToUpdate(req models.AccountSetIsmainReq, dataDB orm.AccountDetail,
 	dataDB.UpdatedBy = types.NewNullString(strings.TrimSpace(req.Username))
 	dataDB.UpdatedDate = types.NewNullTime(timeNow)
 	return dataDB
+}
+
+func addMoneyToEvent(req models.AccountAddMoneyReq) events.AccountAddMoneyEvent {
+	return events.AccountAddMoneyEvent{
+		UserID:    strings.TrimSpace(req.UserID),
+		Username:  strings.TrimSpace(req.Username),
+		AccountID: strings.TrimSpace(req.AccountID),
+		Ammount:   req.Ammount,
+		Currency:  strings.TrimSpace(req.Currency),
+	}
 }

@@ -1,5 +1,17 @@
 basePath: /
 definitions:
+  models.AccountAddMoneyReq:
+    properties:
+      ammount:
+        example: 1
+        type: number
+      currency:
+        example: THB
+        type: string
+    required:
+    - ammount
+    - currency
+    type: object
   models.AccountEditReq:
     properties:
       color:
@@ -143,6 +155,32 @@ info:
   title: API-BANK
   version: "1.0"
 paths:
+  /api/v1/account/addMoney/{accountID}:
+    put:
+      consumes:
+      - application/json
+      description: AddMoney
+      operationId: AccountAddMoney
+      parameters:
+      - description: accountID
+        in: path
+        name: accountID
+        required: true
+        type: string
+      - description: request body
+        in: body
+        name: AccountAddMoneyReq
+        required: true
+        schema:
+          $ref: '#/definitions/models.AccountAddMoneyReq'
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - ApiKeyAuth: []
+      summary: AddMoney
+      tags:
+      - Account API
   /api/v1/account/edit/{accountID}:
     put:
       consumes:
