@@ -68,3 +68,13 @@ func addMoneyToEvent(req models.AccountAddMoneyReq) events.AccountAddMoneyEvent 
 		Currency:  strings.TrimSpace(req.Currency),
 	}
 }
+
+func withdrawlToEvent(req models.AccountWithdrawlReq) events.AccountWithldrawEvent {
+	return events.AccountWithldrawEvent{
+		UserID:    strings.TrimSpace(req.UserID),
+		Username:  strings.TrimSpace(req.Username),
+		AccountID: strings.TrimSpace(req.AccountID),
+		Ammount:   req.Ammount,
+		Currency:  strings.TrimSpace(req.Currency),
+	}
+}

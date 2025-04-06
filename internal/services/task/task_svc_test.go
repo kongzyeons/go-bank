@@ -1,4 +1,4 @@
-package user_task
+package task_svc
 
 // func TestCreateTable(t *testing.T) {
 // 	db := postgresql.InitPostgresql()

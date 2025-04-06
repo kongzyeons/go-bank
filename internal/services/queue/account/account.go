@@ -23,20 +23,20 @@ type accountEventHandler struct {
 	db                 *sqlx.DB
 	accountBalanceRepo accountbalance_repo.AccountBalanceRepo
 	transectionRepo    transaction_repo.TransactionRepo
-	lineNoti           line.LineAPI
+	lineMessage        line.LineAPI
 }
 
 func NewAccountEventHandler(
 	db *sqlx.DB,
 	accountBalanceRepo accountbalance_repo.AccountBalanceRepo,
 	transectionRepo transaction_repo.TransactionRepo,
-	lineNoti line.LineAPI,
+	lineMessage line.LineAPI,
 ) queues.EventHandler {
 	return &accountEventHandler{
 		db:                 db,
 		accountBalanceRepo: accountBalanceRepo,
 		transectionRepo:    transectionRepo,
-		lineNoti:           lineNoti,
+		lineMessage:        lineMessage,
 	}
 }
 
@@ -51,17 +51,16 @@ func (svc *accountEventHandler) Handle(topic string, eventBytes []byte) {
 			res := response.InternalServerError[any](err, err.Error())
 			jsonData, _ := json.MarshalIndent(res, "", "   ")
 			time.Sleep(3 * time.Second)
-			svc.lineNoti.SendMessage(string(jsonData))
+			svc.lineMessage.SendMessage(string(jsonData))
 			return
 		}
 
-		// TODO : repositoy
 		dataDB, err := svc.accountBalanceRepo.GetByID(event.AccountID)
 		if err != nil {
 			res := response.InternalServerError[any](err, err.Error())
 			jsonData, _ := json.MarshalIndent(res, "", "   ")
 			time.Sleep(3 * time.Second)
-			svc.lineNoti.SendMessage(string(jsonData))
+			svc.lineMessage.SendMessage(string(jsonData))
 			return
 		}
 
@@ -69,7 +68,7 @@ func (svc *accountEventHandler) Handle(topic string, eventBytes []byte) {
 			res := response.Notfound[any]("not found account id")
 			jsonData, _ := json.MarshalIndent(res, "", "   ")
 			time.Sleep(3 * time.Second)
-			svc.lineNoti.SendMessage(string(jsonData))
+			svc.lineMessage.SendMessage(string(jsonData))
 			return
 		}
 
@@ -79,7 +78,7 @@ func (svc *accountEventHandler) Handle(topic string, eventBytes []byte) {
 			res := response.InternalServerError[any](err, err.Error())
 			jsonData, _ := json.MarshalIndent(res, "", "   ")
 			time.Sleep(3 * time.Second)
-			svc.lineNoti.SendMessage(string(jsonData))
+			svc.lineMessage.SendMessage(string(jsonData))
 			return
 		}
 
@@ -88,7 +87,7 @@ func (svc *accountEventHandler) Handle(topic string, eventBytes []byte) {
 			res := response.InternalServerError[any](err, err.Error())
 			jsonData, _ := json.MarshalIndent(res, "", "   ")
 			time.Sleep(3 * time.Second)
-			svc.lineNoti.SendMessage(string(jsonData))
+			svc.lineMessage.SendMessage(string(jsonData))
 			return
 		}
 
@@ -103,7 +102,7 @@ func (svc *accountEventHandler) Handle(topic string, eventBytes []byte) {
 			res := response.InternalServerError[any](err, err.Error())
 			jsonData, _ := json.MarshalIndent(res, "", "   ")
 			time.Sleep(3 * time.Second)
-			svc.lineNoti.SendMessage(string(jsonData))
+			svc.lineMessage.SendMessage(string(jsonData))
 			return
 		}
 
@@ -113,7 +112,7 @@ func (svc *accountEventHandler) Handle(topic string, eventBytes []byte) {
 			res := response.InternalServerError[any](err, err.Error())
 			jsonData, _ := json.MarshalIndent(res, "", "   ")
 			time.Sleep(3 * time.Second)
-			svc.lineNoti.SendMessage(string(jsonData))
+			svc.lineMessage.SendMessage(string(jsonData))
 			return
 		}
 
@@ -125,7 +124,89 @@ func (svc *accountEventHandler) Handle(topic string, eventBytes []byte) {
 		res := response.Ok(&result)
 		jsonData, _ := json.MarshalIndent(res, "", "   ")
 		time.Sleep(3 * time.Second)
-		svc.lineNoti.SendMessage(string(jsonData))
+		svc.lineMessage.SendMessage(string(jsonData))
+
+	case reflect.TypeOf(events.AccountWithldrawEvent{}).Name():
+		event := &events.AccountWithldrawEvent{}
+		err := json.Unmarshal(eventBytes, event)
+		if err != nil {
+			res := response.InternalServerError[any](err, err.Error())
+			jsonData, _ := json.MarshalIndent(res, "", "   ")
+			time.Sleep(3 * time.Second)
+			svc.lineMessage.SendMessage(string(jsonData))
+			return
+		}
+
+		dataDB, err := svc.accountBalanceRepo.GetByID(event.AccountID)
+		if err != nil {
+			res := response.InternalServerError[any](err, err.Error())
+			jsonData, _ := json.MarshalIndent(res, "", "   ")
+			time.Sleep(3 * time.Second)
+			svc.lineMessage.SendMessage(string(jsonData))
+			return
+		}
+
+		if dataDB == nil {
+			res := response.Notfound[any]("not found account id")
+			jsonData, _ := json.MarshalIndent(res, "", "   ")
+			time.Sleep(3 * time.Second)
+			svc.lineMessage.SendMessage(string(jsonData))
+			return
+		}
+
+		// begin transection
+		tx, err := svc.db.BeginTx(context.Background(), nil)
+		if err != nil {
+			res := response.InternalServerError[any](err, err.Error())
+			jsonData, _ := json.MarshalIndent(res, "", "   ")
+			time.Sleep(3 * time.Second)
+			svc.lineMessage.SendMessage(string(jsonData))
+			return
+		}
+
+		err = svc.accountBalanceRepo.Update(tx, withdrawlToUpdate(*event, *dataDB))
+		if err != nil {
+			res := response.InternalServerError[any](err, err.Error())
+			jsonData, _ := json.MarshalIndent(res, "", "   ")
+			time.Sleep(3 * time.Second)
+			svc.lineMessage.SendMessage(string(jsonData))
+			return
+		}
+
+		err = svc.transectionRepo.Insert(tx, orm.Transaction{
+			UserID:      event.UserID,
+			Name:        types.NewNullString("account:withdrawl"),
+			IsBank:      true,
+			CreatedBy:   event.Username,
+			CreatedDate: time.Now().UTC(),
+		})
+		if err != nil {
+			res := response.InternalServerError[any](err, err.Error())
+			jsonData, _ := json.MarshalIndent(res, "", "   ")
+			time.Sleep(3 * time.Second)
+			svc.lineMessage.SendMessage(string(jsonData))
+			return
+		}
+
+		//commit transaction
+		err = tx.Commit()
+		if err != nil {
+			res := response.InternalServerError[any](err, err.Error())
+			jsonData, _ := json.MarshalIndent(res, "", "   ")
+			time.Sleep(3 * time.Second)
+			svc.lineMessage.SendMessage(string(jsonData))
+			return
+		}
+
+		result := &models.AccountAddMoneyRes{
+			AccountID:     dataDB.AccountID,
+			AmmountAdd:    event.Ammount,
+			AmmountResult: dataDB.Amount.Float64 - event.Ammount,
+		}
+		res := response.Ok(&result)
+		jsonData, _ := json.MarshalIndent(res, "", "   ")
+		time.Sleep(3 * time.Second)
+		svc.lineMessage.SendMessage(string(jsonData))
 
 	default:
 		log.Println("no event handler")

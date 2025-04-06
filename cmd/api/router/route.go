@@ -32,9 +32,6 @@ func InitRouter(
 	db *sqlx.DB,
 	producer sarama.SyncProducer,
 ) {
-	// setup noti
-	// lineNoti := line.NewLineAPI()
-
 	// setup queue
 	eventProducer := queues.NewEventProducer(producer)
 
@@ -43,8 +40,8 @@ func InitRouter(
 	userGreetingRepo := usergreeting_repo.NewUserGreetingRepo(db)
 	bannerRepo := banner_repo.NewBannerRepo(db)
 	accountRepo := account_repo.NewAccountRepo(db)
-	accountDetailRepo := accountdetail_repo.NewAccountDetailRepo(db)
 	accountBalanceRepo := accountbalance_repo.NewaccountBalanceRepo(db)
+	accountDetailRepo := accountdetail_repo.NewAccountDetailRepo(db)
 	debitCardRepo := debitcard_repo.NewDebitCardRepo(db)
 	transectionRepo := transaction_repo.NewTransactionRepo(db)
 
@@ -99,6 +96,7 @@ func InitRouter(
 	routeAccount.Put("/setIsmain", accountHandler.SetIsmain)
 	routeAccount.Get("/getQrcode/:accountID", accountHandler.GetQrcode)
 	routeAccount.Put("/addMoney/:accountID", accountHandler.AddMoney)
+	routeAccount.Put("/withdrawl/:accountID", accountHandler.Withdrawl)
 
 	// debitCard
 	routeDebitCard := route.Group("/debitCard", middlewareAuth.AuthRequired)

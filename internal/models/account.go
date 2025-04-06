@@ -91,3 +91,17 @@ type AccountAddMoneyRes struct {
 	AmmountAdd    float64 `json:"ammountAdd"`
 	AmmountResult float64 `json:"ammountResult"`
 }
+
+type AccountWithdrawlReq struct {
+	UserID    string  `json:"-" validate:"required"`
+	Username  string  `json:"-" validate:"required"`
+	AccountID string  `json:"-" validate:"required"`
+	Ammount   float64 `json:"ammount" example:"1" validate:"required,gt=0"`
+	Currency  string  `json:"currency" example:"THB" validate:"required"`
+}
+
+type AccountWithdrawlRes struct {
+	AccountID       string  `json:"accountID"`
+	AmmountWithdraw float64 `json:"ammountWithdraw"`
+	AmmountResult   float64 `json:"ammountResult"`
+}

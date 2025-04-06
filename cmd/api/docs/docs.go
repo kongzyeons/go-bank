@@ -192,6 +192,46 @@ const docTemplate = `{
                 "responses": {}
             }
         },
+        "/api/v1/account/withdrawl/{accountID}": {
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Withdrawl",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Account API"
+                ],
+                "summary": "Withdrawl",
+                "operationId": "AccountWithdrawl",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "accountID",
+                        "name": "accountID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "request body",
+                        "name": "AccountWithdrawlReq",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.AccountWithdrawlReq"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        },
         "/api/v1/auth/logout": {
             "post": {
                 "security": [
@@ -511,6 +551,23 @@ const docTemplate = `{
                 "accountIDIsmain": {
                     "type": "string",
                     "example": "accountIDIsmain"
+                }
+            }
+        },
+        "models.AccountWithdrawlReq": {
+            "type": "object",
+            "required": [
+                "ammount",
+                "currency"
+            ],
+            "properties": {
+                "ammount": {
+                    "type": "number",
+                    "example": 1
+                },
+                "currency": {
+                    "type": "string",
+                    "example": "THB"
                 }
             }
         },

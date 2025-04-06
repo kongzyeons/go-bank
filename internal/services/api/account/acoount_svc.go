@@ -30,6 +30,7 @@ type AccountSvc interface {
 	GetQrcode(req models.AccountGetQrcodeReq) response.Response[*models.AccountGetQrcodeRes]
 	SetIsmain(req models.AccountSetIsmainReq) response.Response[*models.AccountSetIsmainRes]
 	AddMoney(req models.AccountAddMoneyReq) response.Response[any]
+	Withdrawl(req models.AccountWithdrawlReq) response.Response[any]
 }
 
 type accountSvc struct {
@@ -307,4 +308,31 @@ func (svc *accountSvc) AddMoney(req models.AccountAddMoneyReq) response.Response
 
 	return response.Ok[any](nil)
 
+}
+
+func (svc *accountSvc) Withdrawl(req models.AccountWithdrawlReq) response.Response[any] {
+	if valMap := validation.ValidateReq(&req); len(valMap) > 0 {
+		return response.ValidationFailed[any](valMap)
+	}
+
+	dataDB, err := svc.accountBalanceRepo.GetByID(req.AccountID)
+	if err != nil {
+		return response.InternalServerError[any](err, err.Error())
+	}
+	if dataDB == nil {
+		return response.Notfound[any]("not found account id")
+	}
+	if dataDB.UserID != req.UserID {
+		return response.Unauthorized[any]("user id unauthorized")
+	}
+	if dataDB.Amount.Float64 < req.Ammount {
+		return response.BadRequest[any]("ืnot enough money")
+	}
+
+	err = svc.eventProducer.Produce(withdrawlToEvent(req))
+	if err != nil {
+		return response.InternalServerError[any](err, err.Error())
+	}
+
+	return response.Ok[any](nil)
 }

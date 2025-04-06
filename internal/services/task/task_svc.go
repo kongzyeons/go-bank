@@ -1,4 +1,4 @@
-package user_task
+package task_svc
 
 import (
 	"context"
@@ -25,6 +25,7 @@ import (
 
 type TaskSvc interface {
 	CreateTable()
+	InsertSimpleData()
 	MockData()
 }
 
@@ -116,7 +117,9 @@ func (svc *taskSvc) CreateTable() {
 		return
 	}
 	log.Println("Table 'transection' created successfully!")
+}
 
+func (svc *taskSvc) InsertSimpleData() {
 	// begin transection
 	tx, err := svc.db.BeginTx(context.Background(), nil)
 	if err != nil {
@@ -164,8 +167,6 @@ func (svc *taskSvc) CreateTable() {
 		log.Println(err)
 		return
 	}
-
-	return
 }
 
 func (svc *taskSvc) createTableUser() error {

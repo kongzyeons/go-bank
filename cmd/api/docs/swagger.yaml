@@ -64,6 +64,18 @@ definitions:
     - accountID
     - accountIDIsmain
     type: object
+  models.AccountWithdrawlReq:
+    properties:
+      ammount:
+        example: 1
+        type: number
+      currency:
+        example: THB
+        type: string
+    required:
+    - ammount
+    - currency
+    type: object
   models.AuthLoginReq:
     properties:
       password:
@@ -267,6 +279,32 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: SetIsmain
+      tags:
+      - Account API
+  /api/v1/account/withdrawl/{accountID}:
+    put:
+      consumes:
+      - application/json
+      description: Withdrawl
+      operationId: AccountWithdrawl
+      parameters:
+      - description: accountID
+        in: path
+        name: accountID
+        required: true
+        type: string
+      - description: request body
+        in: body
+        name: AccountWithdrawlReq
+        required: true
+        schema:
+          $ref: '#/definitions/models.AccountWithdrawlReq'
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - ApiKeyAuth: []
+      summary: Withdrawl
       tags:
       - Account API
   /api/v1/auth/logout:

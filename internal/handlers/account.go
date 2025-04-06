@@ -15,6 +15,7 @@ type AccountHandler interface {
 	GetQrcode(c *fiber.Ctx) error
 	SetIsmain(c *fiber.Ctx) error
 	AddMoney(c *fiber.Ctx) error
+	Withdrawl(c *fiber.Ctx) error
 }
 
 type accountHandler struct {
@@ -130,5 +131,28 @@ func (h *accountHandler) AddMoney(c *fiber.Ctx) error {
 	req.Username = fmt.Sprintf("%v", c.Locals("username"))
 	req.UserID = fmt.Sprintf("%v", c.Locals("user_id"))
 	res := h.accountSvc.AddMoney(req)
+	return res.JSON(c)
+}
+
+// Withdrawl godoc
+// @summary Withdrawl
+// @description Withdrawl
+// @tags Account API
+// @security ApiKeyAuth
+// @id AccountWithdrawl
+// @accept json
+// @produce json
+// @param accountID path string true "accountID"s
+// @param AccountWithdrawlReq body models.AccountWithdrawlReq true "request body"
+// @Router /api/v1/account/withdrawl/{accountID} [put]
+func (h *accountHandler) Withdrawl(c *fiber.Ctx) error {
+	var req models.AccountWithdrawlReq
+	if err := c.BodyParser(&req); err != nil {
+		return response.BadRequest[any]().JSON(c)
+	}
+	req.AccountID = c.Params("accountID")
+	req.Username = fmt.Sprintf("%v", c.Locals("username"))
+	req.UserID = fmt.Sprintf("%v", c.Locals("user_id"))
+	res := h.accountSvc.Withdrawl(req)
 	return res.JSON(c)
 }

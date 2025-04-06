@@ -15,11 +15,11 @@ func InitMessage(
 ) sarama.ConsumerGroupHandler {
 	accountBalanceRepo := accountbalance_repo.NewaccountBalanceRepo(db)
 	transectionRepo := transaction_repo.NewTransactionRepo(db)
-	lineNoti := line.NewLineAPI()
+	lineMessage := line.NewLineAPI()
 	accountEventHandler := account_queue.NewAccountEventHandler(
 		db,
 		accountBalanceRepo, transectionRepo,
-		lineNoti,
+		lineMessage,
 	)
 	consumerHandler := queues.NewConsumerHandler(accountEventHandler)
 
