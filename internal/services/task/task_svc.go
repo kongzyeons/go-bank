@@ -24,8 +24,8 @@ import (
 )
 
 type TaskSvc interface {
-	CreateTable()
-	InsertSimpleData()
+	CreateTable() error
+	InsertSimpleData() error
 	MockData()
 }
 
@@ -77,12 +77,12 @@ func NewTaskSvc(
 	}
 }
 
-func (svc *taskSvc) CreateTable() {
+func (svc *taskSvc) CreateTable() error {
 	// create user table
 	err := svc.createTableUser()
 	if err != nil {
 		log.Println(err)
-		return
+		return err
 	}
 	log.Println("Table 'users' created successfully!")
 
@@ -90,7 +90,7 @@ func (svc *taskSvc) CreateTable() {
 	err = svc.createTableBanner()
 	if err != nil {
 		log.Println(err)
-		return
+		return err
 	}
 	log.Println("Table 'banners' created successfully!")
 
@@ -98,7 +98,7 @@ func (svc *taskSvc) CreateTable() {
 	err = svc.createTableAccount()
 	if err != nil {
 		log.Println(err)
-		return
+		return err
 	}
 	log.Println("Table 'account' created successfully!")
 
@@ -106,7 +106,7 @@ func (svc *taskSvc) CreateTable() {
 	err = svc.createTableDebitCard()
 	if err != nil {
 		log.Println(err)
-		return
+		return err
 	}
 	log.Println("Table 'debit card' created successfully!")
 
@@ -114,25 +114,26 @@ func (svc *taskSvc) CreateTable() {
 	err = svc.createTableTransection()
 	if err != nil {
 		log.Println(err)
-		return
+		return err
 	}
 	log.Println("Table 'transection' created successfully!")
+	return nil
 }
 
-func (svc *taskSvc) InsertSimpleData() {
+func (svc *taskSvc) InsertSimpleData() error {
 	// begin transection
 	tx, err := svc.db.BeginTx(context.Background(), nil)
 	if err != nil {
 		tx.Rollback()
 		log.Println(err)
-		return
+		return err
 	}
 
 	// insert user
 	userID, err := svc.insertUser(tx)
 	if err != nil {
 		log.Println(err)
-		return
+		return err
 	}
 	log.Println("Insert 'users' successfully!")
 
@@ -140,7 +141,7 @@ func (svc *taskSvc) InsertSimpleData() {
 	err = svc.insertBanner(tx, userID)
 	if err != nil {
 		log.Println(err)
-		return
+		return err
 	}
 	log.Println("Insert 'banners' successfully!")
 
@@ -148,7 +149,7 @@ func (svc *taskSvc) InsertSimpleData() {
 	err = svc.insertAccount(tx, userID)
 	if err != nil {
 		log.Println(err)
-		return
+		return err
 	}
 	log.Println("Insert 'acocunts' successfully!")
 
@@ -156,7 +157,7 @@ func (svc *taskSvc) InsertSimpleData() {
 	err = svc.insertDebitCard(tx, userID)
 	if err != nil {
 		log.Println(err)
-		return
+		return err
 	}
 	log.Println("Insert 'debit card' successfully!")
 
@@ -165,8 +166,9 @@ func (svc *taskSvc) InsertSimpleData() {
 	if err != nil {
 		tx.Rollback()
 		log.Println(err)
-		return
+		return err
 	}
+	return nil
 }
 
 func (svc *taskSvc) createTableUser() error {

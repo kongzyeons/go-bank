@@ -51,14 +51,14 @@ func InitRouter(
 		userRepo, userGreetingRepo,
 		transectionRepo,
 	)
-	userSvc := user_svc.NewUserSvc(userGreetingRepo)
-	bannerSvc := banner_svc.NewBannerSvc(bannerRepo)
+	userSvc := user_svc.NewUserSvc(redisClient, userGreetingRepo)
+	bannerSvc := banner_svc.NewBannerSvc(redisClient, bannerRepo)
 	accountSvc := account_svc.NewAccountSvc(
-		db, eventProducer,
+		db, redisClient, eventProducer,
 		accountRepo, accountDetailRepo, accountBalanceRepo,
 		transectionRepo,
 	)
-	debitCardSvc := debitcard_svc.NewDebitCardSvc(debitCardRepo)
+	debitCardSvc := debitcard_svc.NewDebitCardSvc(redisClient, debitCardRepo)
 
 	// setup handler
 	authHandler := handlers.NewAuthHandler(authSvc)

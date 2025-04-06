@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"context"
 	"encoding/base64"
+	"encoding/json"
+	"fmt"
 	"image/png"
 	"math"
 	"strings"
@@ -22,6 +24,7 @@ import (
 	"github.com/kongzyeons/go-bank/internal/utils/response"
 	"github.com/kongzyeons/go-bank/internal/utils/types"
 	"github.com/kongzyeons/go-bank/internal/utils/validation"
+	"github.com/redis/go-redis/v9"
 )
 
 type AccountSvc interface {
@@ -35,6 +38,7 @@ type AccountSvc interface {
 
 type accountSvc struct {
 	db                 *sqlx.DB
+	redisClient        *redis.Client
 	eventProducer      queues.EventProducer
 	accountRepo        account_repo.AccountRepo
 	accountDetailRepo  accountdetail_repo.AccountDetailRepo
@@ -44,6 +48,7 @@ type accountSvc struct {
 
 func NewAccountSvc(
 	db *sqlx.DB,
+	redisClient *redis.Client,
 	eventProducer queues.EventProducer,
 	accountRepo account_repo.AccountRepo,
 	accountDetailRepo accountdetail_repo.AccountDetailRepo,
@@ -52,6 +57,7 @@ func NewAccountSvc(
 ) AccountSvc {
 	return &accountSvc{
 		db:                 db,
+		redisClient:        redisClient,
 		eventProducer:      eventProducer,
 		accountRepo:        accountRepo,
 		accountDetailRepo:  accountDetailRepo,
@@ -91,6 +97,19 @@ func (svc *accountSvc) GetList(req models.AccountGetListReq) response.Response[*
 	req.SortBy.Field = fieldSort.Tag.Get("db")
 	req.SortBy.FieldType = fieldSort.Type.Kind()
 
+	// get redis
+	reqJson, err := json.Marshal(req)
+	if err != nil {
+		return response.InternalServerError[*models.AccountGetListRes](err, err.Error())
+	}
+	key := fmt.Sprintf("accountSvc::%s", string(reqJson))
+	if dataDBJson, err := svc.redisClient.Get(context.Background(), key).Result(); err == nil {
+		var res *models.AccountGetListRes
+		if json.Unmarshal([]byte(dataDBJson), &res) == nil {
+			return response.Ok(&res)
+		}
+	}
+
 	dataDB, total, err := svc.accountRepo.GetList(req)
 	if err != nil {
 		return response.InternalServerError[*models.AccountGetListRes](err, err.Error())
@@ -122,6 +141,12 @@ func (svc *accountSvc) GetList(req models.AccountGetListReq) response.Response[*
 		Page:         req.Page,
 		PerPage:      req.PerPage,
 	}
+
+	// Redis SET
+	if data, err := json.Marshal(res); err == nil {
+		svc.redisClient.Set(context.Background(), key, string(data), time.Second*10)
+	}
+
 	return response.Ok(&res)
 }
 
@@ -173,7 +198,6 @@ func (svc *accountSvc) Edit(req models.AccountEditReq) response.Response[*models
 		UpdatedDate: time.Now().UTC(),
 	}
 	return response.Ok(&res)
-
 }
 
 func (svc *accountSvc) GetQrcode(req models.AccountGetQrcodeReq) response.Response[*models.AccountGetQrcodeRes] {
@@ -282,7 +306,6 @@ func (svc *accountSvc) SetIsmain(req models.AccountSetIsmainReq) response.Respon
 		UpdatedDate: time.Now().UTC(),
 	}
 	return response.Ok(&res)
-
 }
 
 func (svc *accountSvc) AddMoney(req models.AccountAddMoneyReq) response.Response[any] {
@@ -307,7 +330,6 @@ func (svc *accountSvc) AddMoney(req models.AccountAddMoneyReq) response.Response
 	}
 
 	return response.Ok[any](nil)
-
 }
 
 func (svc *accountSvc) Withdrawl(req models.AccountWithdrawlReq) response.Response[any] {

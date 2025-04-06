@@ -41,6 +41,10 @@ func main() {
 		debitCardRepo, debitcardstatuRepo, debitCardSDetailRepo, debitCarddesignRepo,
 		transectionRepo,
 	)
-	taskSvc.CreateTable()
-	taskSvc.InsertSimpleData()
+	if err := taskSvc.CreateTable(); err != nil {
+		return
+	}
+	if err := taskSvc.InsertSimpleData(); err != nil {
+		return
+	}
 }

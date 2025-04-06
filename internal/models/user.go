@@ -1,8 +1,8 @@
 package models
 
 type UserGetGeetingReq struct {
-	UserID   string `json:"-"`
-	Username string `json:"-"`
+	UserID   string `json:"-" validate:"required"`
+	Username string `json:"-" validate:"required"`
 }
 
 type UserGetGeetingRes struct {
