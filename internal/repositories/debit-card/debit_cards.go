@@ -205,6 +205,9 @@ func (repo *debitCardRepo) GetList(req models.DebitCardGetListReq) (res []orm.De
 		condition,
 		order, limit, offset,
 	)
+
+	fmt.Println(repo.db.Rebind(query))
+
 	err = repo.db.Select(&res, repo.db.Rebind(query), params...)
 	if postgresql.IsSQLReallyError(err) {
 		return res, total, err

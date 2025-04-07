@@ -16,8 +16,6 @@ type UserRepo interface {
 	CreateTable() error
 	Insert(tx *sql.Tx, req orm.User) (userID string, err error)
 	InsertMock(tx *sql.Tx, req orm.User) (userID string, err error)
-	Update(req orm.User) error
-	Delete(id string) error
 
 	GetByID(id string) (res *orm.User, err error)
 	GetUnique(name string) (res *orm.User, err error)
@@ -135,13 +133,6 @@ func (repo *userRepo) InsertMock(tx *sql.Tx, req orm.User) (userID string, err e
 	}
 
 	return userID, nil
-}
-
-func (repo *userRepo) Update(req orm.User) error {
-	return nil
-}
-func (repo *userRepo) Delete(id string) error {
-	return nil
 }
 
 func (repo *userRepo) GetByID(id string) (res *orm.User, err error) {

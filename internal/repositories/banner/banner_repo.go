@@ -157,6 +157,7 @@ func (repo *bannerRepo) GetList(req models.BannerGetListReq) (res []orm.Banner, 
 		condition,
 		order, limit, offset,
 	)
+
 	err = repo.db.Select(&res, repo.db.Rebind(query), params...)
 	if postgresql.IsSQLReallyError(err) {
 		return res, total, err
