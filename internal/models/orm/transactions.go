@@ -12,6 +12,7 @@ type Transaction struct {
 	Name          types.SQLNullString `db:"name"`
 	Image         types.SQLNullString `db:"image"`
 	IsBank        bool                `db:"isBank"`
-	CreatedBy     string              `db:"created_by"`
+	DummyCol6     types.SQLNullString `db:"dummy_col_6"`
+	CreatedBy     types.SQLNullString `db:"created_by"`
 	CreatedDate   time.Time           `db:"created_date"`
 }

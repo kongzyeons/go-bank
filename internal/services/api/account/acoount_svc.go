@@ -180,7 +180,7 @@ func (svc *accountSvc) Edit(req models.AccountEditReq) response.Response[*models
 	err = svc.transectionRepo.Insert(tx, orm.Transaction{
 		UserID:      dataDB.UserID,
 		Name:        types.NewNullString("account:edit"),
-		CreatedBy:   req.Name,
+		CreatedBy:   types.NewNullString(req.Name),
 		CreatedDate: time.Now().UTC(),
 	})
 	if err != nil {
@@ -288,7 +288,7 @@ func (svc *accountSvc) SetIsmain(req models.AccountSetIsmainReq) response.Respon
 	err = svc.transectionRepo.Insert(tx, orm.Transaction{
 		UserID:      dataDB.UserID,
 		Name:        types.NewNullString("account:setIsmain"),
-		CreatedBy:   req.Username,
+		CreatedBy:   types.NewNullString(req.Username),
 		CreatedDate: time.Now().UTC(),
 	})
 	if err != nil {

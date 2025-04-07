@@ -53,6 +53,7 @@ Ref: users.user_id < account_balances.user_id
 Table account_details{
   account_id uuid [ref: - accounts.account_id] 
   user_id uuid
+  name varchar(50)
   color varchar(10)
   is_main_account bool
   progress integer
@@ -63,9 +64,24 @@ Table account_details{
 }
 Ref: users.user_id < account_details.user_id
 
+Table account_flags {
+  flag_id SERIAL [primary key]
+  account_id uuid 
+  user_id uuid
+  flag_type varchar(50)
+  flag_value varchar(30)
+  create_by varchar(100)
+  create_date timestamp
+  update_by varchar(100)
+  update_date timestamp
+}
+Ref: users.user_id < account_flags.user_id
+Ref: accounts.account_id < account_flags.account_id
+
+
 
 Table banners {
-  banner_id uuid
+  banner_id uuid [primary key] 
   user_id uuid
   title varchar(255)
   description text
@@ -76,5 +92,68 @@ Table banners {
   update_date timestamp
 }
 Ref: users.user_id < banners.user_id
+
+Table debit_cards {
+  card_id uuid [primary key] 
+  user_id uuid
+  name varchar(100)
+  create_by varchar(100)
+  create_date timestamp
+  update_by varchar(100)
+  update_date timestamp
+}
+Ref: users.user_id < debit_cards.user_id
+
+
+Table debit_card_status {
+    card_id uuid [ref: - debit_cards.card_id] 
+    user_id uuid
+    status varchar(20)
+    create_by varchar(100)
+    create_date timestamp
+    update_by varchar(100)
+    update_date timestamp
+}
+Ref: users.user_id < debit_card_status.user_id
+
+
+Table debit_card_design {
+    card_id uuid [ref: - debit_cards.card_id] 
+    user_id uuid
+    color varchar(10)
+    border_color varchar(1)
+    create_by varchar(100)
+    create_date timestamp
+    update_by varchar(100)
+    update_date timestamp
+}
+Ref: users.user_id < debit_card_design.user_id
+
+Table debit_card_details {
+    card_id uuid [ref: - debit_cards.card_id] 
+    user_id uuid
+    issuer varchar(10)
+    number varchar(25)
+    create_by varchar(100)
+    create_date timestamp
+    update_by varchar(100)
+    update_date timestamp
+}
+Ref: users.user_id < debit_card_details.user_id
+
+
+Table transactions {
+  transaction_id uuid [primary key]
+  user_id uuid
+  name varchar(100)
+  image varchar(255)
+  isBank bool
+  create_by varchar(100)
+  create_date timestamp
+}
+Ref: users.user_id < transactions.user_id
+
+
+
 
 

@@ -3,9 +3,13 @@ package task_svc
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"log"
+	"strings"
+	"sync"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 	"github.com/kongzyeons/go-bank/internal/models/orm"
 	account_repo "github.com/kongzyeons/go-bank/internal/repositories/account"
@@ -26,7 +30,7 @@ import (
 type TaskSvc interface {
 	CreateTable() error
 	InsertSimpleData() error
-	MockData()
+	MockDataBanner()
 }
 
 type taskSvc struct {
@@ -240,10 +244,10 @@ func (svc *taskSvc) createTableTransection() error {
 
 func (svc *taskSvc) insertUser(tx *sql.Tx) (userID string, err error) {
 	timeNow := time.Now().UTC()
-	userID, err = svc.userRepo.Insert(tx, orm.User{
+	userID, err = svc.userRepo.InsertMock(tx, orm.User{
 		Name:        "admin",
-		Password:    "123456",
-		CreatedBy:   "admin",
+		Password:    types.NewNullString("123456"),
+		CreatedBy:   types.NewNullString("admin"),
 		CreatedDate: timeNow,
 		UpdatedBy:   types.NewNullString("admin"),
 		UpdatedDate: types.NewNullTime(timeNow),
@@ -253,8 +257,8 @@ func (svc *taskSvc) insertUser(tx *sql.Tx) (userID string, err error) {
 	}
 	err = svc.userGreetingRepo.Insert(tx, orm.UserGreeting{
 		UserID:      userID,
-		Greeting:    "Have a nice day Clare",
-		CreatedBy:   "admin",
+		Greeting:    types.NewNullString("Have a nice day Clare"),
+		CreatedBy:   types.NewNullString("admin"),
 		CreatedDate: timeNow,
 		UpdatedBy:   types.NewNullString("admin"),
 		UpdatedDate: types.NewNullTime(timeNow),
@@ -270,7 +274,7 @@ func (svc *taskSvc) insertBanner(tx *sql.Tx, userID string) (err error) {
 			UserID:      userID,
 			Title:       types.NewNullString(titles[i]),
 			Image:       types.NewNullString("https://dummyimage.com/54x54/999/fff"),
-			CreatedBy:   "admin",
+			CreatedBy:   types.NewNullString("admin"),
 			CreatedDate: timeNow,
 			UpdatedBy:   types.NewNullString("admin"),
 			UpdatedDate: types.NewNullTime(timeNow),
@@ -305,7 +309,7 @@ func (svc *taskSvc) insertAccount(tx *sql.Tx, userID string) (err error) {
 			Currency:      types.NewNullString("THB"),
 			AccountNumber: types.NewNullString("568-2-81740-9"),
 			Issuer:        types.NewNullString(issuers[i]),
-			CreatedBy:     "admin",
+			CreatedBy:     types.NewNullString("admin"),
 			CreatedDate:   timeNow,
 			UpdatedBy:     types.NewNullString("admin"),
 			UpdatedDate:   types.NewNullTime(timeNow),
@@ -317,7 +321,7 @@ func (svc *taskSvc) insertAccount(tx *sql.Tx, userID string) (err error) {
 			AccountID:   accountID,
 			UserID:      userID,
 			Amount:      types.NewNullFloat64(amounts[i]),
-			CreatedBy:   "admin",
+			CreatedBy:   types.NewNullString("admin"),
 			CreatedDate: timeNow,
 			UpdatedBy:   types.NewNullString("admin"),
 			UpdatedDate: types.NewNullTime(timeNow),
@@ -332,7 +336,7 @@ func (svc *taskSvc) insertAccount(tx *sql.Tx, userID string) (err error) {
 			Color:          types.NewNullString("red"),
 			IsManinAccount: isManinAccount[i],
 			Progress:       types.NewNullInt64(progress[i]),
-			CreatedBy:      "admin",
+			CreatedBy:      types.NewNullString("admin"),
 			CreatedDate:    timeNow,
 			UpdatedBy:      types.NewNullString("admin"),
 			UpdatedDate:    types.NewNullTime(timeNow),
@@ -353,7 +357,7 @@ func (svc *taskSvc) insertDebitCard(tx *sql.Tx, userID string) (err error) {
 		cardID, err := svc.debitcardRepo.Insert(tx, orm.DebitCard{
 			UserID:      userID,
 			Name:        types.NewNullString(names[i]),
-			CreatedBy:   "admin",
+			CreatedBy:   types.NewNullString("admin"),
 			CreatedDate: timeNow,
 			UpdatedBy:   types.NewNullString("admin"),
 			UpdatedDate: types.NewNullTime(timeNow),
@@ -365,7 +369,7 @@ func (svc *taskSvc) insertDebitCard(tx *sql.Tx, userID string) (err error) {
 			CardID:      cardID,
 			UserID:      userID,
 			Status:      types.NewNullString(status[i]),
-			CreatedBy:   "admin",
+			CreatedBy:   types.NewNullString("admin"),
 			CreatedDate: timeNow,
 			UpdatedBy:   types.NewNullString("admin"),
 			UpdatedDate: types.NewNullTime(timeNow),
@@ -378,7 +382,7 @@ func (svc *taskSvc) insertDebitCard(tx *sql.Tx, userID string) (err error) {
 			UserID:      userID,
 			Issuer:      types.NewNullString("TestLab"),
 			Number:      types.NewNullString(numbers[i]),
-			CreatedBy:   "admin",
+			CreatedBy:   types.NewNullString("admin"),
 			CreatedDate: timeNow,
 			UpdatedBy:   types.NewNullString("admin"),
 			UpdatedDate: types.NewNullTime(timeNow),
@@ -391,7 +395,7 @@ func (svc *taskSvc) insertDebitCard(tx *sql.Tx, userID string) (err error) {
 			UserID:      userID,
 			Color:       types.NewNullString("red"),
 			BorderColor: types.NewNullString("blue"),
-			CreatedBy:   "admin",
+			CreatedBy:   types.NewNullString("admin"),
 			CreatedDate: timeNow,
 			UpdatedBy:   types.NewNullString("admin"),
 			UpdatedDate: types.NewNullTime(timeNow),
@@ -403,5 +407,91 @@ func (svc *taskSvc) insertDebitCard(tx *sql.Tx, userID string) (err error) {
 	return nil
 }
 
-func (svc *taskSvc) MockData() {
+func (svc *taskSvc) MockDataBanner() {
+
+	var defaultUUID uuid.UUID // zero value
+
+	var banners []orm.Banner
+	for i := 0; i < 100000; i++ {
+		banners = append(banners, orm.Banner{
+			UserID:      defaultUUID.String(),
+			Title:       types.NewNullString("test"),
+			Description: types.NewNullString("test"),
+			Image:       types.NewNullString("test"),
+			DummyCol11:  types.NewNullString("test"),
+			CreatedBy:   types.NewNullString("test"),
+			CreatedDate: time.Now(),
+			UpdatedBy:   types.NewNullString("test"),
+			UpdatedDate: types.NewNullTime(time.Now()),
+		})
+	}
+
+	err := InsertBannersConcurrently(svc.db, banners)
+	if err != nil {
+		fmt.Println("Insert failed:", err)
+	} else {
+		fmt.Println("Insert successful")
+	}
+
+}
+
+func insertBannerChunk(db *sqlx.DB, banners []orm.Banner) error {
+	query := `INSERT INTO banners (
+		user_id, title, description, image, 
+		dummy_col_11, created_by, created_date, updated_by, updated_date
+	) VALUES `
+
+	valueStrings := make([]string, 0, len(banners))
+	valueArgs := make([]interface{}, 0, len(banners)*9)
+
+	for i, b := range banners {
+		valueStrings = append(valueStrings, fmt.Sprintf("($%d,$%d,$%d,$%d,$%d,$%d,$%d,$%d,$%d)",
+			i*9+1, i*9+2, i*9+3, i*9+4, i*9+5, i*9+6, i*9+7, i*9+8, i*9+9))
+
+		valueArgs = append(valueArgs,
+			b.UserID,
+			b.Title,
+			b.Description,
+			b.Image,
+			b.DummyCol11,
+			b.CreatedBy,
+			b.CreatedDate,
+			b.UpdatedBy,
+			b.UpdatedDate,
+		)
+	}
+
+	query += strings.Join(valueStrings, ",")
+	_, err := db.Exec(query, valueArgs...)
+	return err
+}
+
+func InsertBannersConcurrently(db *sqlx.DB, banners []orm.Banner) error {
+	const chunkSize = 1000
+	var wg sync.WaitGroup
+	errChan := make(chan error, len(banners)/chunkSize+1)
+
+	for i := 0; i < len(banners); i += chunkSize {
+		end := i + chunkSize
+		if end > len(banners) {
+			end = len(banners)
+		}
+		chunk := banners[i:end]
+
+		wg.Add(1)
+		go func(chunkData []orm.Banner) {
+			defer wg.Done()
+			if err := insertBannerChunk(db, chunkData); err != nil {
+				errChan <- err
+			}
+		}(chunk)
+	}
+
+	wg.Wait()
+	close(errChan)
+
+	if len(errChan) > 0 {
+		return <-errChan
+	}
+	return nil
 }

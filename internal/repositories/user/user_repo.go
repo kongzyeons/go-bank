@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 	"github.com/kongzyeons/go-bank/internal/models/orm"
 	"github.com/kongzyeons/go-bank/pkg/postgresql"
@@ -14,6 +15,7 @@ import (
 type UserRepo interface {
 	CreateTable() error
 	Insert(tx *sql.Tx, req orm.User) (userID string, err error)
+	InsertMock(tx *sql.Tx, req orm.User) (userID string, err error)
 	Update(req orm.User) error
 	Delete(id string) error
 
@@ -34,8 +36,9 @@ func (repo *userRepo) CreateTable() error {
 		CREATE TABLE IF NOT EXISTS public.users (
 			user_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 			name VARCHAR(100) NULL,
-			password VARCHAR(6) NOT NULL,
-			created_by VARCHAR(100) NOT NULL,
+			password VARCHAR(6) NULL,
+			dummy_col_1 varchar(255) DEFAULT NULL,
+			created_by VARCHAR(100) NULL,
 			created_date TIMESTAMPTZ NOT NULL DEFAULT (NOW() AT TIME ZONE 'UTC'),
 			updated_by VARCHAR(100) NULL,
 			updated_date TIMESTAMPTZ NULL
@@ -66,8 +69,8 @@ func (repo *userRepo) CreateTable() error {
 func (repo *userRepo) Insert(tx *sql.Tx, req orm.User) (userID string, err error) {
 	params := make([]interface{}, 6)
 	params[0] = req.Name
-	params[1] = req.Password
-	params[2] = req.CreatedBy
+	params[1] = req.Password.NullString
+	params[2] = req.CreatedBy.NullString
 	params[3] = req.CreatedDate
 	params[4] = req.UpdatedBy.NullString
 	params[5] = req.UpdatedDate.NullTime
@@ -96,6 +99,44 @@ func (repo *userRepo) Insert(tx *sql.Tx, req orm.User) (userID string, err error
 
 	return userID, nil
 }
+
+func (repo *userRepo) InsertMock(tx *sql.Tx, req orm.User) (userID string, err error) {
+	var defaultUUID uuid.UUID // zero value
+	params := make([]interface{}, 7)
+	params[0] = defaultUUID.String()
+	params[1] = req.Name
+	params[2] = req.Password.NullString
+	params[3] = req.CreatedBy.NullString
+	params[4] = req.CreatedDate
+	params[5] = req.UpdatedBy.NullString
+	params[6] = req.UpdatedDate.NullTime
+
+	tableInsert := `INSERT INTO public.users`
+	col := `(
+		user_id,
+		name,
+		password, 
+		created_by,
+		created_date,
+		updated_by,
+		updated_date
+	)`
+	values := `VALUES (
+		$1, $2, $3, $4, $5, $6, $7
+	)`
+
+	returning := `RETURNING user_id`
+
+	query := fmt.Sprintf(`%s %s %s %s;`, tableInsert, col, values, returning)
+
+	err = tx.QueryRow(query, params...).Scan(&userID)
+	if postgresql.IsSQLReallyError(err) {
+		return userID, err
+	}
+
+	return userID, nil
+}
+
 func (repo *userRepo) Update(req orm.User) error {
 	return nil
 }

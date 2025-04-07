@@ -13,7 +13,8 @@ type AccountDetail struct {
 	Color          types.SQLNullString `db:"color"`
 	IsManinAccount bool                `db:"is_main_account"`
 	Progress       types.SQLNullInt64  `db:"progress"`
-	CreatedBy      string              `db:"created_by"`
+	DummyCol5      types.SQLNullString `db:"dummy_col_5"`
+	CreatedBy      types.SQLNullString `db:"created_by"`
 	CreatedDate    time.Time           `db:"created_date"`
 	UpdatedBy      types.SQLNullString `db:"updated_by"`
 	UpdatedDate    types.SQLNullTime   `db:"updated_date"`

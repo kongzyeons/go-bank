@@ -17,7 +17,7 @@ func toDebitCardGetListResult(req orm.DebitCardVW) models.DebitCardGetListResult
 		Issuer:      req.Issuer.String,
 		Color:       req.Issuer.String,
 		BorderColor: req.BorderColor.String,
-		CreatedBy:   req.CreatedBy,
+		CreatedBy:   req.CreatedBy.String,
 		CreatedDate: func() *time.Time {
 			if req.CreatedDate.IsZero() {
 				return nil

@@ -32,7 +32,8 @@ func (repo *debitCarddesignRepo) CreateTable() error {
 		user_id UUID DEFAULT gen_random_uuid(),
 		color VARCHAR(10) NULL,
 		border_color VARCHAR(10) NULL,
-		created_by VARCHAR(100) NOT NULL,
+		dummy_col_9 varchar(255) DEFAULT NULL,
+		created_by VARCHAR(100) NULL,
 		created_date TIMESTAMPTZ NOT NULL DEFAULT (NOW() AT TIME ZONE 'UTC'),
 		updated_by VARCHAR(100) NULL,
 		updated_date TIMESTAMPTZ NULL
@@ -66,7 +67,7 @@ func (repo *debitCarddesignRepo) Insert(tx *sql.Tx, req orm.DebitCardDesign) err
 	params[1] = req.UserID
 	params[2] = req.Color.NullString
 	params[3] = req.BorderColor.NullString
-	params[4] = req.CreatedBy
+	params[4] = req.CreatedBy.NullString
 	params[5] = req.CreatedDate
 	params[6] = req.UpdatedBy.NullString
 	params[7] = req.UpdatedDate.NullTime

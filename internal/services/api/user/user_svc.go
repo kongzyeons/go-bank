@@ -60,7 +60,7 @@ func (svc *userSvc) GetGeeting(req models.UserGetGeetingReq) response.Response[*
 
 	res := &models.UserGetGeetingRes{
 		Username: req.Username,
-		Greeting: dataDB.Greeting,
+		Greeting: dataDB.Greeting.String,
 	}
 
 	// Redis SET

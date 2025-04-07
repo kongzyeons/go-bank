@@ -11,7 +11,8 @@ type DebitCardDesign struct {
 	UserID      string              `db:"user_id"`
 	Color       types.SQLNullString `db:"color"`
 	BorderColor types.SQLNullString `db:"border_color"`
-	CreatedBy   string              `db:"created_by"`
+	DummyCol9   types.SQLNullString `db:"dummy_col_9"`
+	CreatedBy   types.SQLNullString `db:"created_by"`
 	CreatedDate time.Time           `db:"created_date"`
 	UpdatedBy   types.SQLNullString `db:"updated_by"`
 	UpdatedDate types.SQLNullTime   `db:"updated_date"`

@@ -10,7 +10,8 @@ type AccountBalance struct {
 	AccountID   string               `db:"account_id"`
 	UserID      string               `db:"user_id"`
 	Amount      types.SQLNullFloat64 `db:"amount"`
-	CreatedBy   string               `db:"created_by"`
+	DummyCol4   types.SQLNullString  `db:"dummy_col_4"`
+	CreatedBy   types.SQLNullString  `db:"created_by"`
 	CreatedDate time.Time            `db:"created_date"`
 	UpdatedBy   types.SQLNullString  `db:"updated_by"`
 	UpdatedDate types.SQLNullTime    `db:"updated_date"`

@@ -123,7 +123,7 @@ func (svc *authSvc) Login(req models.AuthLoginReq) response.Response[*models.Aut
 		return response.Notfound[*models.AuthLoginRes]("not found name")
 	}
 
-	if dataDB.Password != req.Password {
+	if dataDB.Password.String != req.Password {
 		return response.BadRequest[*models.AuthLoginRes]("password invalid")
 	}
 
@@ -181,7 +181,7 @@ func (svc *authSvc) Login(req models.AuthLoginReq) response.Response[*models.Aut
 	err = svc.transectionRepo.Insert(tx, orm.Transaction{
 		UserID:      dataDB.UserID,
 		Name:        types.NewNullString("auth:login"),
-		CreatedBy:   dataDB.Name,
+		CreatedBy:   types.NewNullString(dataDB.Name),
 		CreatedDate: time.Now().UTC(),
 	})
 	if err != nil {
@@ -297,7 +297,7 @@ func (svc *authSvc) Logout(req models.AuthLogoutReq) response.Response[any] {
 	err = svc.transectionRepo.Insert(tx, orm.Transaction{
 		UserID:      req.UserID,
 		Name:        types.NewNullString("auth:logout"),
-		CreatedBy:   req.Username,
+		CreatedBy:   types.NewNullString(req.Username),
 		CreatedDate: time.Now().UTC(),
 	})
 	if err != nil {

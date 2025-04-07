@@ -11,7 +11,8 @@ type DebitCardDetail struct {
 	UserID      string              `db:"user_id"`
 	Issuer      types.SQLNullString `db:"issuer"`
 	Number      types.SQLNullString `db:"number"`
-	CreatedBy   string              `db:"created_by"`
+	DummyCol10  types.SQLNullString `db:"dummy_col_10"`
+	CreatedBy   types.SQLNullString `db:"created_by"`
 	CreatedDate time.Time           `db:"created_date"`
 	UpdatedBy   types.SQLNullString `db:"updated_by"`
 	UpdatedDate types.SQLNullTime   `db:"updated_date"`

@@ -13,8 +13,8 @@ func toUserRepoInsert(req models.AuthRegisterReq) orm.User {
 	timeNow := time.Now().UTC()
 	return orm.User{
 		Name:        strings.TrimSpace(req.Username),
-		Password:    strings.TrimSpace(req.Password),
-		CreatedBy:   "admin",
+		Password:    types.NewNullString(strings.TrimSpace(req.Password)),
+		CreatedBy:   types.NewNullString("admin"),
 		CreatedDate: timeNow,
 		UpdatedBy:   types.NewNullString("admin"),
 		UpdatedDate: types.NewNullTime(timeNow),
@@ -25,8 +25,8 @@ func toUserGreeting(userID string) orm.UserGreeting {
 	timeNow := time.Now().UTC()
 	return orm.UserGreeting{
 		UserID:      userID,
-		Greeting:    "Have a nice day Clare",
-		CreatedBy:   "admin",
+		Greeting:    types.NewNullString("Have a nice day Clare"),
+		CreatedBy:   types.NewNullString("admin"),
 		CreatedDate: timeNow,
 		UpdatedBy:   types.NewNullString("admin"),
 		UpdatedDate: types.NewNullTime(timeNow),

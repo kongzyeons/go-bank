@@ -33,7 +33,7 @@ func (repo *accountFlagRepo) CreateTable() error {
 		user_id UUID DEFAULT gen_random_uuid(),
 		flag_type VARCHAR(50) NOT NULL,
 		flag_value VARCHAR(30) NOT NULL,
-		created_by VARCHAR(100) NOT NULL,
+		created_by VARCHAR(100) NULL,
 		created_date TIMESTAMPTZ NOT NULL DEFAULT (NOW() AT TIME ZONE 'UTC'),
 		updated_by VARCHAR(100) NULL,
 		updated_date TIMESTAMPTZ NULL
@@ -68,7 +68,7 @@ func (repo *accountFlagRepo) Insert(tx *sql.Tx, req orm.AccountFlag) error {
 	params[1] = req.UserID
 	params[2] = req.FlagType
 	params[3] = req.FlagValue
-	params[4] = req.CreatedBy
+	params[4] = req.CreatedBy.NullString
 	params[5] = req.CreatedDate
 	params[6] = req.UpdatedBy.NullString
 	params[7] = req.UpdatedDate.NullTime

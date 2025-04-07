@@ -14,7 +14,7 @@ func toBannerGetListResult(req orm.Banner) models.BannerGetListResult {
 		Title:       req.Title.String,
 		Description: req.Description.String,
 		Image:       req.Image.String,
-		CreatedBy:   req.CreatedBy,
+		CreatedBy:   req.CreatedBy.String,
 		CreatedDate: func() *time.Time {
 			if req.CreatedDate.IsZero() {
 				return nil

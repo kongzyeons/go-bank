@@ -23,7 +23,7 @@ func toBannerGetListResult(req orm.AccountVW) models.AccountGetListResult {
 		Currency:       req.Currency.String,
 		Color:          req.Color.String,
 		Progress:       req.Progress.Int64,
-		CreatedBy:      req.CreatedBy,
+		CreatedBy:      req.CreatedBy.String,
 		CreatedDate: func() *time.Time {
 			if req.CreatedDate.IsZero() {
 				return nil

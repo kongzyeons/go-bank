@@ -12,7 +12,8 @@ type Banner struct {
 	Title       types.SQLNullString `db:"title"`
 	Description types.SQLNullString `db:"description"`
 	Image       types.SQLNullString `db:"image"`
-	CreatedBy   string              `db:"created_by"`
+	DummyCol11  types.SQLNullString `db:"dummy_col_11"`
+	CreatedBy   types.SQLNullString `db:"created_by"`
 	CreatedDate time.Time           `db:"created_date"`
 	UpdatedBy   types.SQLNullString `db:"updated_by"`
 	UpdatedDate types.SQLNullTime   `db:"updated_date"`

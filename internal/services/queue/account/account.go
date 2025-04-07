@@ -95,7 +95,7 @@ func (svc *accountEventHandler) Handle(topic string, eventBytes []byte) {
 			UserID:      event.UserID,
 			Name:        types.NewNullString("account:addMoney"),
 			IsBank:      true,
-			CreatedBy:   event.Username,
+			CreatedBy:   types.NewNullString(event.Username),
 			CreatedDate: time.Now().UTC(),
 		})
 		if err != nil {
@@ -177,7 +177,7 @@ func (svc *accountEventHandler) Handle(topic string, eventBytes []byte) {
 			UserID:      event.UserID,
 			Name:        types.NewNullString("account:withdrawl"),
 			IsBank:      true,
-			CreatedBy:   event.Username,
+			CreatedBy:   types.NewNullString(event.Username),
 			CreatedDate: time.Now().UTC(),
 		})
 		if err != nil {

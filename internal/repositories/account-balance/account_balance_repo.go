@@ -34,7 +34,8 @@ func (repo *accountBalanceRepo) CreateTable() error {
 		account_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 		user_id UUID DEFAULT gen_random_uuid(),
 		amount DECIMAL(15,2) NULL,
-		created_by VARCHAR(100) NOT NULL,
+		dummy_col_4 varchar(255) DEFAULT NULL,
+		created_by VARCHAR(100) NULL,
 		created_date TIMESTAMPTZ NOT NULL DEFAULT (NOW() AT TIME ZONE 'UTC'),
 		updated_by VARCHAR(100) NULL,
 		updated_date TIMESTAMPTZ NULL
@@ -66,7 +67,7 @@ func (repo *accountBalanceRepo) Insert(tx *sql.Tx, req orm.AccountBalance) error
 	params[0] = req.AccountID
 	params[1] = req.UserID
 	params[2] = req.Amount.NullFloat64
-	params[3] = req.CreatedBy
+	params[3] = req.CreatedBy.NullString
 	params[4] = req.CreatedDate
 	params[5] = req.UpdatedBy.NullString
 	params[6] = req.UpdatedDate.NullTime

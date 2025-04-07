@@ -37,7 +37,8 @@ func (repo *accountDetailRepo) CreateTable() error {
 		color VARCHAR(10) NULL,
 		is_main_account bool DEFAULT false NOT NULL,
 		progress BIGINT NULL,
-		created_by VARCHAR(100) NOT NULL,
+		dummy_col_5 varchar(255) DEFAULT NULL,
+		created_by VARCHAR(100) NULL,
 		created_date TIMESTAMPTZ NOT NULL DEFAULT (NOW() AT TIME ZONE 'UTC'),
 		updated_by VARCHAR(100) NULL,
 		updated_date TIMESTAMPTZ NULL
@@ -72,7 +73,7 @@ func (repo *accountDetailRepo) Insert(tx *sql.Tx, req orm.AccountDetail) error {
 	params[3] = req.Color.NullString
 	params[4] = req.IsManinAccount
 	params[5] = req.Progress.NullInt64
-	params[6] = req.CreatedBy
+	params[6] = req.CreatedBy.NullString
 	params[7] = req.CreatedDate
 	params[8] = req.UpdatedBy.NullString
 	params[9] = req.UpdatedDate.NullTime

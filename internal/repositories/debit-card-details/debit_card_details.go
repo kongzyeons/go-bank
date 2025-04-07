@@ -32,7 +32,8 @@ func (repo *debitCardSDetailRepo) CreateTable() error {
 		user_id UUID DEFAULT gen_random_uuid(),
 		issuer VARCHAR(100) NULL,
 		number VARCHAR(25) NULL,
-		created_by VARCHAR(100) NOT NULL,
+		dummy_col_10 varchar(255) DEFAULT NULL,
+		created_by VARCHAR(100) NULL,
 		created_date TIMESTAMPTZ NOT NULL DEFAULT (NOW() AT TIME ZONE 'UTC'),
 		updated_by VARCHAR(100) NULL,
 		updated_date TIMESTAMPTZ NULL
@@ -66,7 +67,7 @@ func (repo *debitCardSDetailRepo) Insert(tx *sql.Tx, req orm.DebitCardDetail) er
 	params[1] = req.UserID
 	params[2] = req.Issuer.NullString
 	params[3] = req.Number.NullString
-	params[4] = req.CreatedBy
+	params[4] = req.CreatedBy.NullString
 	params[5] = req.CreatedDate
 	params[6] = req.UpdatedBy.NullString
 	params[7] = req.UpdatedDate.NullTime

@@ -41,7 +41,8 @@ func (repo *accountRepo) CreateTable() error {
 		currency VARCHAR(10) NULL,
 		account_number VARCHAR(20) NULL,
 		issuer VARCHAR(100) NULL,
-		created_by VARCHAR(100) NOT NULL,
+		dummy_col_3 varchar(255) DEFAULT NULL,
+		created_by VARCHAR(100) NULL,
 		created_date TIMESTAMPTZ NOT NULL DEFAULT (NOW() AT TIME ZONE 'UTC'),
 		updated_by VARCHAR(100) NULL,
 		updated_date TIMESTAMPTZ NULL
@@ -122,7 +123,7 @@ func (repo *accountRepo) Insert(tx *sql.Tx, req orm.Account) (accountID string, 
 	params[2] = req.Currency.NullString
 	params[3] = req.AccountNumber.NullString
 	params[4] = req.Issuer.NullString
-	params[5] = req.CreatedBy
+	params[5] = req.CreatedBy.NullString
 	params[6] = req.CreatedDate
 	params[7] = req.UpdatedBy.NullString
 	params[8] = req.UpdatedDate.NullTime

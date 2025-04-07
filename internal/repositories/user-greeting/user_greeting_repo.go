@@ -32,8 +32,9 @@ func (repo *uerGreetingRepo) CreateTable() error {
 	query := `
 		CREATE TABLE IF NOT EXISTS public.user_greetings (
 			user_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-			greeting VARCHAR(255) NOT NULL,
-			created_by VARCHAR(100) NOT NULL,
+			greeting VARCHAR(255) NULL,
+			dummy_col_2 varchar(255) DEFAULT NULL,
+			created_by VARCHAR(100) NULL,
 			created_date TIMESTAMPTZ NOT NULL DEFAULT (NOW() AT TIME ZONE 'UTC'),
 			updated_by VARCHAR(100) NULL,
 			updated_date TIMESTAMPTZ NULL
@@ -63,8 +64,8 @@ func (repo *uerGreetingRepo) Insert(tx *sql.Tx, req orm.UserGreeting) error {
 
 	params := make([]interface{}, 6)
 	params[0] = req.UserID
-	params[1] = req.Greeting
-	params[2] = req.CreatedBy
+	params[1] = req.Greeting.NullString
+	params[2] = req.CreatedBy.NullString
 	params[3] = req.CreatedDate
 	params[4] = req.UpdatedBy.NullString
 	params[5] = req.UpdatedDate.NullTime

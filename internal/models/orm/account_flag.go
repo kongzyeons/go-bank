@@ -12,7 +12,7 @@ type AccountFlag struct {
 	UserID      string              `db:"user_id"`
 	FlagType    string              `db:"flag_type"`
 	FlagValue   string              `db:"flag_value"`
-	CreatedBy   string              `db:"created_by"`
+	CreatedBy   types.SQLNullString `db:"created_by"`
 	CreatedDate time.Time           `db:"created_date"`
 	UpdatedBy   types.SQLNullString `db:"updated_by"`
 	UpdatedDate types.SQLNullTime   `db:"updated_date"`

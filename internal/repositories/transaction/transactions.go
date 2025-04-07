@@ -33,7 +33,8 @@ func (repo *transactionRepo) CreateTable() error {
 		name VARCHAR(100) NULL,
 		image VARCHAR(255) NULL,
 		isBank bool DEFAULT false NOT NULL,
-		created_by VARCHAR(100) NOT NULL,
+		dummy_col_6 varchar(255) DEFAULT NULL,
+		created_by VARCHAR(100) NULL,
 		created_date TIMESTAMPTZ NOT NULL DEFAULT (NOW() AT TIME ZONE 'UTC')
 	);
 	create index transactions_user_id_idx on public.transactions using  btree (user_id);
@@ -63,9 +64,9 @@ func (repo *transactionRepo) Insert(tx *sql.Tx, req orm.Transaction) error {
 	params := make([]interface{}, 6)
 	params[0] = req.UserID
 	params[1] = req.Name
-	params[2] = req.Image.String
+	params[2] = req.Image.NullString
 	params[3] = req.IsBank
-	params[4] = req.CreatedBy
+	params[4] = req.CreatedBy.NullString
 	params[5] = req.CreatedDate
 
 	tableInsert := `INSERT INTO public.transactions`
