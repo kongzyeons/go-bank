@@ -9,7 +9,18 @@ import (
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/kongzyeons/go-bank/internal/models/orm"
 	"github.com/kongzyeons/go-bank/pkg/postgresql"
+	"github.com/stretchr/testify/mock"
 )
+
+func TestNewTransactionRepoMock(t *testing.T) {
+	repo := NewTransactionRepoMock()
+
+	repo.On("CreateTable").Return(nil)
+	repo.On("Insert", mock.Anything, mock.Anything).Return(nil)
+
+	_ = repo.CreateTable()
+	_ = repo.Insert(nil, orm.Transaction{})
+}
 
 func TestNewTransactionRepo(t *testing.T) {
 	db, _, _ := postgresql.InitDatabaseMock()

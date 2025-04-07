@@ -14,7 +14,24 @@ import (
 	"github.com/kongzyeons/go-bank/internal/models"
 	"github.com/kongzyeons/go-bank/internal/models/orm"
 	"github.com/kongzyeons/go-bank/pkg/postgresql"
+	"github.com/stretchr/testify/mock"
 )
+
+func TestNewAccountRepoMock(t *testing.T) {
+	repo := NewAccountRepoMock()
+	repo.On("CreateTable").Return(nil)
+	repo.On("CreateTableView").Return(nil)
+	repo.On("Insert", mock.Anything, mock.Anything).Return("", nil)
+	repo.On("GetList", mock.Anything).Return([]orm.AccountVW{}, int64(0), nil)
+	repo.On("GetByID", mock.Anything).Return(&orm.Account{}, nil)
+
+	repo.CreateTable()
+	repo.CreateTableView()
+	repo.Insert(nil, orm.Account{})
+	repo.GetList(models.AccountGetListReq{})
+	repo.GetByID("")
+
+}
 
 func TestNewAccountRepo(t *testing.T) {
 	db, _, _ := postgresql.InitDatabaseMock()

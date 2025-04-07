@@ -10,6 +10,7 @@ import (
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/kongzyeons/go-bank/internal/models/orm"
 	"github.com/kongzyeons/go-bank/pkg/postgresql"
+	"github.com/stretchr/testify/mock"
 )
 
 func TestNewAccountRepo(t *testing.T) {
@@ -169,4 +170,18 @@ func TestGetByID(t *testing.T) {
 			repo.GetByID("test")
 		})
 	}
+}
+
+func TestNewAccountBalanceRepoMock(t *testing.T) {
+	repo := NewAccountBalanceRepoMock()
+
+	repo.On("CreateTable").Return(nil)
+	repo.On("Insert", mock.Anything, mock.Anything).Return(nil)
+	repo.On("Update", mock.Anything, mock.Anything).Return(nil)
+	repo.On("GetByID", mock.Anything).Return(&orm.AccountBalance{}, nil)
+
+	_ = repo.CreateTable()
+	_ = repo.Insert(nil, orm.AccountBalance{})
+	_ = repo.Update(nil, orm.AccountBalance{})
+	_, _ = repo.GetByID("")
 }

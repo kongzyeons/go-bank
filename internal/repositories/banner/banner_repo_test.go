@@ -12,7 +12,20 @@ import (
 	"github.com/kongzyeons/go-bank/internal/models"
 	"github.com/kongzyeons/go-bank/internal/models/orm"
 	"github.com/kongzyeons/go-bank/pkg/postgresql"
+	"github.com/stretchr/testify/mock"
 )
+
+func TestNewBannerRepoMock(t *testing.T) {
+	repo := NewBannerRepoMock()
+
+	repo.On("CreateTable").Return(nil)
+	repo.On("Insert", mock.Anything, mock.Anything).Return(nil)
+	repo.On("GetList", mock.Anything).Return([]orm.Banner{}, int64(0), nil)
+
+	_ = repo.CreateTable()
+	_ = repo.Insert(nil, orm.Banner{})
+	_, _, _ = repo.GetList(models.BannerGetListReq{})
+}
 
 func TestNewBannerRepo(t *testing.T) {
 	db, _, _ := postgresql.InitDatabaseMock()

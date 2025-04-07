@@ -11,7 +11,24 @@ import (
 	"github.com/google/uuid"
 	"github.com/kongzyeons/go-bank/internal/models/orm"
 	"github.com/kongzyeons/go-bank/pkg/postgresql"
+	"github.com/stretchr/testify/mock"
 )
+
+func TestNewUserRepoMock(t *testing.T) {
+	repo := NewUserRepoMock()
+
+	repo.On("CreateTable").Return(nil)
+	repo.On("Insert", mock.Anything, mock.Anything).Return("user123", nil)
+	repo.On("InsertMock", mock.Anything, mock.Anything).Return("user123", nil)
+	repo.On("GetByID", mock.Anything).Return(&orm.User{}, nil)
+	repo.On("GetUnique", mock.Anything).Return(&orm.User{}, nil)
+
+	_ = repo.CreateTable()
+	_, _ = repo.Insert(nil, orm.User{})
+	_, _ = repo.InsertMock(nil, orm.User{})
+	_, _ = repo.GetByID("user123")
+	_, _ = repo.GetUnique("unique-name")
+}
 
 func TestNewAccountRepo(t *testing.T) {
 	db, _, _ := postgresql.InitDatabaseMock()

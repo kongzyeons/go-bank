@@ -12,7 +12,22 @@ import (
 	"github.com/kongzyeons/go-bank/internal/models"
 	"github.com/kongzyeons/go-bank/internal/models/orm"
 	"github.com/kongzyeons/go-bank/pkg/postgresql"
+	"github.com/stretchr/testify/mock"
 )
+
+func TestNewDebitCardRepoMock(t *testing.T) {
+	repo := NewDebitCardRepoMock()
+
+	repo.On("CreateTable").Return(nil)
+	repo.On("CreateTableView").Return(nil)
+	repo.On("Insert", mock.Anything, mock.Anything).Return("", nil)
+	repo.On("GetList", mock.Anything).Return([]orm.DebitCardVW{}, int64(0), nil)
+
+	_ = repo.CreateTable()
+	_ = repo.CreateTableView()
+	_, _ = repo.Insert(nil, orm.DebitCard{})
+	_, _, _ = repo.GetList(models.DebitCardGetListReq{})
+}
 
 func TestNewDebitCardRepo(t *testing.T) {
 	db, _, _ := postgresql.InitDatabaseMock()

@@ -10,7 +10,20 @@ import (
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/kongzyeons/go-bank/internal/models/orm"
 	"github.com/kongzyeons/go-bank/pkg/postgresql"
+	"github.com/stretchr/testify/mock"
 )
+
+func TestNewUserGreetingRepoMock(t *testing.T) {
+	repo := NewUserGreetingRepoMock()
+
+	repo.On("CreateTable").Return(nil)
+	repo.On("Insert", mock.Anything, mock.Anything).Return(nil)
+	repo.On("GetByID", mock.Anything).Return(&orm.UserGreeting{}, nil)
+
+	_ = repo.CreateTable()
+	_ = repo.Insert(nil, orm.UserGreeting{})
+	_, _ = repo.GetByID("user123")
+}
 
 func TestNewUserGreetingRepo(t *testing.T) {
 	db, _, _ := postgresql.InitDatabaseMock()

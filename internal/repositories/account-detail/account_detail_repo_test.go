@@ -10,7 +10,22 @@ import (
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/kongzyeons/go-bank/internal/models/orm"
 	"github.com/kongzyeons/go-bank/pkg/postgresql"
+	"github.com/stretchr/testify/mock"
 )
+
+func TestNewAccountDetailRepoMock(t *testing.T) {
+	repo := NewAccountDetailRepoMock()
+
+	repo.On("CreateTable").Return(nil)
+	repo.On("Insert", mock.Anything, mock.Anything).Return(nil)
+	repo.On("Update", mock.Anything, mock.Anything).Return(nil)
+	repo.On("GetByID", mock.Anything).Return(&orm.AccountDetail{}, nil)
+
+	_ = repo.CreateTable()
+	_ = repo.Insert(nil, orm.AccountDetail{})
+	_ = repo.Update(nil, orm.AccountDetail{})
+	_, _ = repo.GetByID("")
+}
 
 func TestNewAccountDetailRepo(t *testing.T) {
 	db, _, _ := postgresql.InitDatabaseMock()

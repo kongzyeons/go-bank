@@ -93,6 +93,9 @@ func (svc *authSvc) Register(req models.AuthRegisterReq) response.Response[any] 
 		tx,
 		toUserGreeting(userID),
 	)
+	if err != nil {
+		return response.InternalServerError[any](err, err.Error())
+	}
 
 	//commit transaction
 	err = tx.Commit()
