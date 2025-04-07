@@ -5,6 +5,7 @@ import (
 	"errors"
 	"log"
 
+	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 )
@@ -20,4 +21,13 @@ func InitPostgresql() *sqlx.DB {
 
 func IsSQLReallyError(err error) bool {
 	return err != nil && !errors.Is(err, sql.ErrNoRows)
+}
+
+func InitDatabaseMock() (*sqlx.DB, sqlmock.Sqlmock, error) {
+	db, mockDB, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual)) //
+	if err != nil {
+		return nil, nil, err
+	}
+	sqlxDB := sqlx.NewDb(db, "postgres")
+	return sqlxDB, mockDB, nil
 }

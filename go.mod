@@ -3,15 +3,16 @@ module github.com/kongzyeons/go-bank
 go 1.24.1
 
 require (
+	github.com/DATA-DOG/go-sqlmock v1.5.2
 	github.com/IBM/sarama v1.45.1
 	github.com/boombuler/barcode v1.0.2
 	github.com/go-playground/validator/v10 v10.26.0
 	github.com/gofiber/fiber/v2 v2.52.6
 	github.com/gofiber/swagger v1.1.1
 	github.com/golang-jwt/jwt/v5 v5.2.2
+	github.com/google/uuid v1.6.0
 	github.com/jmoiron/sqlx v1.4.0
 	github.com/joho/godotenv v1.5.1
-	github.com/juunini/simple-go-line-notify v1.3.1
 	github.com/lib/pq v1.10.9
 	github.com/redis/go-redis/v9 v9.7.3
 	github.com/shopspring/decimal v1.4.0
@@ -37,7 +38,6 @@ require (
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
-	github.com/google/uuid v1.6.0 // indirect
 	github.com/hashicorp/errwrap v1.0.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	github.com/hashicorp/go-uuid v1.0.3 // indirect

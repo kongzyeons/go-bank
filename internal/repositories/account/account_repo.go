@@ -49,6 +49,7 @@ func (repo *accountRepo) CreateTable() error {
 	);
 	create index accounts_user_id_idx on public.accounts using  btree (user_id);
 `
+
 	tx, err := repo.db.BeginTx(context.Background(), nil)
 	if err != nil {
 		tx.Rollback()
@@ -218,6 +219,7 @@ func (repo *accountRepo) GetList(req models.AccountGetListReq) (res []orm.Accoun
 		condition,
 		order, limit, offset,
 	)
+	fmt.Println(repo.db.Rebind(query))
 	err = repo.db.Select(&res, repo.db.Rebind(query), params...)
 	if postgresql.IsSQLReallyError(err) {
 		return res, total, err
