@@ -46,9 +46,3 @@ services:
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-
-  k6:
-    image: grafana/k6
-    container_name: k6
-    volumes: 
-      - ./scripts:/scripts

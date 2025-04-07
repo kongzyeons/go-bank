@@ -167,6 +167,27 @@ info:
   title: API-BANK
   version: "1.0"
 paths:
+  /api/test/banner/getlist:
+    post:
+      consumes:
+      - application/json
+      description: GetListTest
+      operationId: BannerGetListTest
+      parameters:
+      - description: request body
+        in: body
+        name: BannerGetListReq
+        required: true
+        schema:
+          $ref: '#/definitions/models.BannerGetListReq'
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - ApiKeyAuth: []
+      summary: GetListTest
+      tags:
+      - Test API
   /api/v1/account/addMoney/{accountID}:
     put:
       consumes:

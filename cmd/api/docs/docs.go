@@ -15,6 +15,39 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/api/test/banner/getlist": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "GetListTest",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Test API"
+                ],
+                "summary": "GetListTest",
+                "operationId": "BannerGetListTest",
+                "parameters": [
+                    {
+                        "description": "request body",
+                        "name": "BannerGetListReq",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.BannerGetListReq"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        },
         "/api/v1/account/addMoney/{accountID}": {
             "put": {
                 "security": [

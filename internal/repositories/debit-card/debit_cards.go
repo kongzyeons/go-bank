@@ -181,7 +181,7 @@ func (repo *debitCardRepo) GetList(req models.DebitCardGetListReq) (res []orm.De
 	// order
 	order := ""
 	if req.SortBy.Field != "" {
-		if req.SortBy.FieldType == reflect.String {
+		if (req.SortBy.FieldType == reflect.String) && req.SortBy.Field != "user_id" && req.SortBy.Field != "card_id" {
 			order = fmt.Sprintf(`ORDER BY %s COLLATE "th-TH-x-icu" %s`, req.SortBy.Field, req.SortBy.Mode)
 		} else {
 			order = fmt.Sprintf(`ORDER BY %s %s`, req.SortBy.Field, req.SortBy.Mode)

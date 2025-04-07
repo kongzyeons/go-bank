@@ -102,6 +102,10 @@ func InitRouter(
 	routeDebitCard := route.Group("/debitCard", middlewareAuth.AuthRequired)
 	routeDebitCard.Post("/getlist", debitCardHandler.GetList)
 
+	// test banner
+	routeTest := app.Group("/api/test")
+	routeTest.Post("/banner/getlist", bannerHandler.GetListTest)
+
 }
 
 func InitServer() *fiber.App {
