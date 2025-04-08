@@ -6,6 +6,7 @@ Table users {
   name varchar(100)
   password varchar(6)
   create_by varchar(100)
+  dummy_col_1 varchar(255)
   create_date timestamp
   update_by varchar(100)
   update_date timestamp
@@ -16,6 +17,7 @@ Table user_greetings{
   user_id uuid [ref: - users.user_id] 
   greeting text
   create_by varchar(100)
+  dummy_col_2 varchar(255)
   create_date timestamp
   update_by varchar(100)
   update_date timestamp
@@ -31,6 +33,7 @@ Table accounts {
   account_number varchar(20)
   issuer varchar(100)
   create_by varchar(100)
+  dummy_col_3 varchar(255)
   create_date timestamp
   update_by varchar(100)
   update_date timestamp
@@ -43,6 +46,7 @@ Table account_balances{
   user_id uuid
   amount DECIMAL(15,2) 
   create_by varchar(100)
+  dummy_col_4 varchar(255)
   create_date timestamp
   update_by varchar(100)
   update_date timestamp
@@ -58,6 +62,7 @@ Table account_details{
   is_main_account bool
   progress integer
   create_by varchar(100)
+  dummy_col_5 varchar(255)
   create_date timestamp
   update_by varchar(100)
   update_date timestamp
@@ -71,6 +76,7 @@ Table account_flags {
   flag_type varchar(50)
   flag_value varchar(30)
   create_by varchar(100)
+  dummy_col_1 varchar(255)
   create_date timestamp
   update_by varchar(100)
   update_date timestamp
@@ -87,6 +93,7 @@ Table banners {
   description text
   image varchar(255)
   create_by varchar(100)
+  dummy_col_11 varchar(255)
   create_date timestamp
   update_by varchar(100)
   update_date timestamp
@@ -98,6 +105,7 @@ Table debit_cards {
   user_id uuid
   name varchar(100)
   create_by varchar(100)
+  dummy_col_7 varchar(255)
   create_date timestamp
   update_by varchar(100)
   update_date timestamp
@@ -110,6 +118,7 @@ Table debit_card_status {
     user_id uuid
     status varchar(20)
     create_by varchar(100)
+    dummy_col_8 varchar(255)
     create_date timestamp
     update_by varchar(100)
     update_date timestamp
@@ -123,6 +132,7 @@ Table debit_card_design {
     color varchar(10)
     border_color varchar(1)
     create_by varchar(100)
+    dummy_col_9 varchar(255)
     create_date timestamp
     update_by varchar(100)
     update_date timestamp
@@ -135,6 +145,7 @@ Table debit_card_details {
     issuer varchar(10)
     number varchar(25)
     create_by varchar(100)
+    dummy_col_10 varchar(255)
     create_date timestamp
     update_by varchar(100)
     update_date timestamp
@@ -149,6 +160,7 @@ Table transactions {
   image varchar(255)
   isBank bool
   create_by varchar(100)
+  dummy_col_6 varchar(255)
   create_date timestamp
 }
 Ref: users.user_id < transactions.user_id
