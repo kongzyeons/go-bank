@@ -50,7 +50,7 @@ func (svc *accountEventHandler) Handle(topic string, eventBytes []byte) {
 		if err != nil {
 			res := response.InternalServerError[any](err, err.Error())
 			jsonData, _ := json.MarshalIndent(res, "", "   ")
-			time.Sleep(3 * time.Second)
+			time.Sleep(2 * time.Second)
 			svc.lineMessage.SendMessage(string(jsonData))
 			return
 		}
@@ -59,7 +59,7 @@ func (svc *accountEventHandler) Handle(topic string, eventBytes []byte) {
 		if err != nil {
 			res := response.InternalServerError[any](err, err.Error())
 			jsonData, _ := json.MarshalIndent(res, "", "   ")
-			time.Sleep(3 * time.Second)
+			time.Sleep(2 * time.Second)
 			svc.lineMessage.SendMessage(string(jsonData))
 			return
 		}
@@ -67,7 +67,7 @@ func (svc *accountEventHandler) Handle(topic string, eventBytes []byte) {
 		if dataDB == nil {
 			res := response.Notfound[any]("not found account id")
 			jsonData, _ := json.MarshalIndent(res, "", "   ")
-			time.Sleep(3 * time.Second)
+			time.Sleep(2 * time.Second)
 			svc.lineMessage.SendMessage(string(jsonData))
 			return
 		}
@@ -77,7 +77,7 @@ func (svc *accountEventHandler) Handle(topic string, eventBytes []byte) {
 		if err != nil {
 			res := response.InternalServerError[any](err, err.Error())
 			jsonData, _ := json.MarshalIndent(res, "", "   ")
-			time.Sleep(3 * time.Second)
+			time.Sleep(2 * time.Second)
 			svc.lineMessage.SendMessage(string(jsonData))
 			return
 		}
@@ -86,7 +86,7 @@ func (svc *accountEventHandler) Handle(topic string, eventBytes []byte) {
 		if err != nil {
 			res := response.InternalServerError[any](err, err.Error())
 			jsonData, _ := json.MarshalIndent(res, "", "   ")
-			time.Sleep(3 * time.Second)
+			time.Sleep(2 * time.Second)
 			svc.lineMessage.SendMessage(string(jsonData))
 			return
 		}
@@ -101,7 +101,7 @@ func (svc *accountEventHandler) Handle(topic string, eventBytes []byte) {
 		if err != nil {
 			res := response.InternalServerError[any](err, err.Error())
 			jsonData, _ := json.MarshalIndent(res, "", "   ")
-			time.Sleep(3 * time.Second)
+			time.Sleep(2 * time.Second)
 			svc.lineMessage.SendMessage(string(jsonData))
 			return
 		}
@@ -111,7 +111,7 @@ func (svc *accountEventHandler) Handle(topic string, eventBytes []byte) {
 		if err != nil {
 			res := response.InternalServerError[any](err, err.Error())
 			jsonData, _ := json.MarshalIndent(res, "", "   ")
-			time.Sleep(3 * time.Second)
+			time.Sleep(2 * time.Second)
 			svc.lineMessage.SendMessage(string(jsonData))
 			return
 		}
@@ -123,7 +123,7 @@ func (svc *accountEventHandler) Handle(topic string, eventBytes []byte) {
 		}
 		res := response.Ok(&result)
 		jsonData, _ := json.MarshalIndent(res, "", "   ")
-		time.Sleep(3 * time.Second)
+		time.Sleep(2 * time.Second)
 		svc.lineMessage.SendMessage(string(jsonData))
 
 	case reflect.TypeOf(events.AccountWithldrawEvent{}).Name():
@@ -132,7 +132,7 @@ func (svc *accountEventHandler) Handle(topic string, eventBytes []byte) {
 		if err != nil {
 			res := response.InternalServerError[any](err, err.Error())
 			jsonData, _ := json.MarshalIndent(res, "", "   ")
-			time.Sleep(3 * time.Second)
+			time.Sleep(2 * time.Second)
 			svc.lineMessage.SendMessage(string(jsonData))
 			return
 		}
@@ -141,7 +141,7 @@ func (svc *accountEventHandler) Handle(topic string, eventBytes []byte) {
 		if err != nil {
 			res := response.InternalServerError[any](err, err.Error())
 			jsonData, _ := json.MarshalIndent(res, "", "   ")
-			time.Sleep(3 * time.Second)
+			time.Sleep(2 * time.Second)
 			svc.lineMessage.SendMessage(string(jsonData))
 			return
 		}
@@ -149,7 +149,7 @@ func (svc *accountEventHandler) Handle(topic string, eventBytes []byte) {
 		if dataDB == nil {
 			res := response.Notfound[any]("not found account id")
 			jsonData, _ := json.MarshalIndent(res, "", "   ")
-			time.Sleep(3 * time.Second)
+			time.Sleep(2 * time.Second)
 			svc.lineMessage.SendMessage(string(jsonData))
 			return
 		}
@@ -159,7 +159,7 @@ func (svc *accountEventHandler) Handle(topic string, eventBytes []byte) {
 		if err != nil {
 			res := response.InternalServerError[any](err, err.Error())
 			jsonData, _ := json.MarshalIndent(res, "", "   ")
-			time.Sleep(3 * time.Second)
+			time.Sleep(2 * time.Second)
 			svc.lineMessage.SendMessage(string(jsonData))
 			return
 		}
@@ -168,7 +168,7 @@ func (svc *accountEventHandler) Handle(topic string, eventBytes []byte) {
 		if err != nil {
 			res := response.InternalServerError[any](err, err.Error())
 			jsonData, _ := json.MarshalIndent(res, "", "   ")
-			time.Sleep(3 * time.Second)
+			time.Sleep(2 * time.Second)
 			svc.lineMessage.SendMessage(string(jsonData))
 			return
 		}
@@ -183,7 +183,7 @@ func (svc *accountEventHandler) Handle(topic string, eventBytes []byte) {
 		if err != nil {
 			res := response.InternalServerError[any](err, err.Error())
 			jsonData, _ := json.MarshalIndent(res, "", "   ")
-			time.Sleep(3 * time.Second)
+			time.Sleep(2 * time.Second)
 			svc.lineMessage.SendMessage(string(jsonData))
 			return
 		}
@@ -193,7 +193,7 @@ func (svc *accountEventHandler) Handle(topic string, eventBytes []byte) {
 		if err != nil {
 			res := response.InternalServerError[any](err, err.Error())
 			jsonData, _ := json.MarshalIndent(res, "", "   ")
-			time.Sleep(3 * time.Second)
+			time.Sleep(2 * time.Second)
 			svc.lineMessage.SendMessage(string(jsonData))
 			return
 		}
@@ -205,7 +205,7 @@ func (svc *accountEventHandler) Handle(topic string, eventBytes []byte) {
 		}
 		res := response.Ok(&result)
 		jsonData, _ := json.MarshalIndent(res, "", "   ")
-		time.Sleep(3 * time.Second)
+		time.Sleep(2 * time.Second)
 		svc.lineMessage.SendMessage(string(jsonData))
 
 	default:

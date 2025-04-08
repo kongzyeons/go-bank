@@ -94,31 +94,3 @@ func GetField(tag, key string, s interface{}) (field reflect.StructField, err er
 	}
 	return field, errors.New("not found filter")
 }
-
-func IsStructEmpty(s interface{}) bool {
-	val := reflect.ValueOf(s)
-
-	// Iterate over fields of struct
-	for i := 0; i < val.NumField(); i++ {
-		field := val.Field(i)
-
-		// Check if field is empty
-		switch field.Kind() {
-		case reflect.String:
-			if field.String() == "" {
-				return true
-			}
-			// You can add more cases for other types if needed
-		}
-	}
-	return false
-}
-
-func ValueInSlice[T comparable](s T, slice []T) bool {
-	for i := range slice {
-		if s == slice[i] {
-			return true
-		}
-	}
-	return false
-}

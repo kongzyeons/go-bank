@@ -128,13 +128,3 @@ func (t SQLNullTime) GetTimeOrNull() *time.Time {
 	return &t.Time
 
 }
-
-// MarshalJSON Jsonconvert Helper
-func (s *SQLNullTime) MarshalJSON() ([]byte, error) {
-
-	if s.IsNull() {
-		return []byte("\"\""), nil
-	}
-
-	return []byte(fmt.Sprintf("\"%s\"", s.Val().Format("2006-01-02 15:04:05"))), nil
-}
