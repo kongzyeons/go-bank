@@ -1,6 +1,7 @@
 package auth_service
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"testing"
@@ -258,6 +259,166 @@ func TestLogin(t *testing.T) {
 			)
 
 			svc.Login(tc.req)
+		})
+	}
+}
+
+func TestPing(t *testing.T) {
+	svc := authSvc{}
+	svc.Ping(models.AuthPingReq{})
+}
+
+func TestRefresh(t *testing.T) {
+	testCases := []struct {
+		nameTest string
+		req      models.AuthRefreshReq
+		key      string
+		value    string
+		errGet   error
+		errSet   error
+	}{
+		{nameTest: "test", errGet: errors.New("")},
+		{nameTest: "test",
+			req: models.AuthRefreshReq{
+				UserID: "test",
+			},
+			errGet: redis.Nil,
+		},
+		{nameTest: "test",
+			req: models.AuthRefreshReq{
+				UserID: "test",
+			},
+			value: "test",
+		},
+		{nameTest: "test",
+			req: models.AuthRefreshReq{
+				UserID:   "test",
+				RefToken: "test",
+			},
+			value: func() string {
+				jsonStr, _ := json.Marshal(orm.Auth{})
+				return string(jsonStr)
+			}(),
+		},
+		{nameTest: "test",
+			req: models.AuthRefreshReq{
+				UserID: "test",
+			},
+			value: func() string {
+				jsonStr, _ := json.Marshal(orm.Auth{})
+				return string(jsonStr)
+			}(),
+		},
+	}
+	for _, tc := range testCases {
+		t.Run(tc.nameTest, func(t *testing.T) {
+			db, _, _ := postgresql.InitDatabaseMock()
+			defer db.Close()
+
+			rc, redisMock := redismock.NewClientMock()
+			key := fmt.Sprintf("authSvc::%v", tc.req.UserID)
+
+			if tc.errGet != nil {
+				redisMock.ExpectGet(key).SetErr(tc.errGet)
+			}
+			if tc.value != "" {
+				redisMock.ExpectGet(key).SetVal(tc.value)
+			}
+			if tc.errSet != nil {
+				redisMock.ExpectSet(key, tc.value, time.Hour*24).SetErr(tc.errSet)
+			} else {
+				redisMock.ExpectSet(key, tc.value, time.Hour*24).SetVal("ok")
+			}
+
+			userRepo := user_repo.NewUserRepoMock()
+			userGreetingRepo := usergreeting_repo.NewUserGreetingRepoMock()
+			transectionRepo := transaction_repo.NewTransactionRepoMock()
+
+			svc := NewAuthSvc(
+				db, rc,
+				userRepo, userGreetingRepo,
+				transectionRepo,
+			)
+
+			svc.Refresh(tc.req)
+		})
+	}
+}
+
+func TestLogout(t *testing.T) {
+	testCases := []struct {
+		nameTest   string
+		req        models.AuthLogoutReq
+		key        string
+		value      string
+		errGet     error
+		errDel     error
+		errBeginTx error
+		errCommit  error
+		errInsert  error
+	}{
+		{nameTest: "test"},
+		{nameTest: "test",
+			errGet: redis.Nil,
+		},
+		{nameTest: "test",
+			value:  "test",
+			errDel: errors.New(""),
+		},
+		{nameTest: "test",
+			value:     "test",
+			errInsert: errors.New(""),
+		},
+		{nameTest: "test",
+			value:     "test",
+			errCommit: errors.New(""),
+		},
+		{nameTest: "test",
+			value: "test",
+		},
+	}
+	for _, tc := range testCases {
+		t.Run(tc.nameTest, func(t *testing.T) {
+			db, mockDB, _ := postgresql.InitDatabaseMock()
+			defer db.Close()
+			if tc.errBeginTx == nil {
+				mockDB.ExpectBegin()
+			}
+			if tc.errCommit == nil {
+				mockDB.ExpectCommit()
+			}
+
+			rc, redisMock := redismock.NewClientMock()
+			key := fmt.Sprintf("authSvc::%v", tc.req.UserID)
+
+			if tc.errGet != nil {
+				redisMock.ExpectGet(key).SetErr(tc.errGet)
+			}
+			if tc.value != "" {
+				redisMock.ExpectGet(key).SetVal(tc.value)
+			}
+			if tc.errDel != nil {
+				redisMock.ExpectDel("").SetErr(tc.errDel)
+
+			} else {
+				redisMock.ExpectDel(key).SetVal(0)
+			}
+
+			userRepo := user_repo.NewUserRepoMock()
+			userGreetingRepo := usergreeting_repo.NewUserGreetingRepoMock()
+			transectionRepo := transaction_repo.NewTransactionRepoMock()
+
+			transectionRepo.On("Insert", mock.Anything, mock.Anything).Return(
+				tc.errInsert,
+			)
+
+			svc := NewAuthSvc(
+				db, rc,
+				userRepo, userGreetingRepo,
+				transectionRepo,
+			)
+
+			svc.Logout(tc.req)
 		})
 	}
 }
