@@ -169,7 +169,7 @@ func (svc *authSvc) Login(req models.AuthLoginReq) response.Response[*models.Aut
 	if err != nil {
 		return response.InternalServerError[*models.AuthLoginRes](err, err.Error())
 	}
-	err = svc.redisClient.Set(context.Background(), key, string(valu), 24*time.Hour).Err()
+	err = svc.redisClient.Set(context.Background(), key, string(valu), 15*time.Minute).Err()
 	if err != nil {
 		return response.InternalServerError[*models.AuthLoginRes](err, err.Error())
 	}
@@ -261,7 +261,7 @@ func (svc *authSvc) Refresh(req models.AuthRefreshReq) response.Response[*models
 	if err != nil {
 		return response.InternalServerError[*models.AuthRefreshRes](err, err.Error())
 	}
-	err = svc.redisClient.Set(context.Background(), key, string(valu), 24*time.Hour).Err()
+	err = svc.redisClient.Set(context.Background(), key, string(valu), 15*time.Minute).Err()
 	if err != nil {
 		return response.InternalServerError[*models.AuthRefreshRes](err, err.Error())
 	}
