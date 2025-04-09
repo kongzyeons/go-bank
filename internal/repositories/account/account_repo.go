@@ -219,7 +219,6 @@ func (repo *accountRepo) GetList(req models.AccountGetListReq) (res []orm.Accoun
 		condition,
 		order, limit, offset,
 	)
-	fmt.Println(repo.db.Rebind(query))
 	err = repo.db.Select(&res, repo.db.Rebind(query), params...)
 	if postgresql.IsSQLReallyError(err) {
 		return res, total, err

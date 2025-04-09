@@ -65,7 +65,7 @@ func (svc *userSvc) GetGeeting(req models.UserGetGeetingReq) response.Response[*
 
 	// Redis SET
 	if data, err := json.Marshal(res); err == nil {
-		svc.redisClient.Set(context.Background(), key, string(data), time.Second*10)
+		svc.redisClient.Set(context.Background(), key, string(data), time.Minute*5)
 	}
 
 	return response.Ok(&res)
