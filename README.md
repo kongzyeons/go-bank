@@ -49,10 +49,10 @@ go mod tidy
 #create table databaes and simple data (admin)
 go run ./cmd/task/create .  
 
-# inset admin data
+# insert admin data
 go run ./cmd/task/insert .  
 
-# inset mock data of banner (2M data) for test performance
+# insert mock data of banner (2M data) for test performance
 go run ./cmd/task/insert-mock .  
 
 # run server
