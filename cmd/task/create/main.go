@@ -33,7 +33,7 @@ func main() {
 	debitCarddesignRepo := debitcarddesign_repo.NewDebitCarddesignRepo(db)
 	transectionRepo := transaction_repo.NewTransactionRepo(db)
 
-	taskSvc := task_svc.NewTaskSvc(
+	taskSvc := task_svc.NewTaskCreateSvc(
 		db,
 		userRepo, userGreetingRepo,
 		bannerRepo,
@@ -44,7 +44,5 @@ func main() {
 	if err := taskSvc.CreateTable(); err != nil {
 		return
 	}
-	if err := taskSvc.InsertSimpleData(); err != nil {
-		return
-	}
+
 }

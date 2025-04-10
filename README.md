@@ -43,11 +43,17 @@ docker-compose down
 <h2>Run Start Project Command</h2>
 
 ```bash
-#initial create table databaes and simple data
-go run ./cmd/task .  
+# initial
+go mod tidy
 
-# inset mock data of banner (20M data) for test performance
-go run ./cmd/task-mock .  
+#create table databaes and simple data (admin)
+go run ./cmd/task/create .  
+
+# inset admin data
+go run ./cmd/task/insert .  
+
+# inset mock data of banner (2M data) for test performance
+go run ./cmd/task/insert-mock .  
 
 # run server
 go run ./cmd/api .  

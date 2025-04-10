@@ -27,13 +27,13 @@ import (
 	"github.com/kongzyeons/go-bank/internal/utils/types"
 )
 
-type TaskSvc interface {
-	CreateTable() error
+type TaskInsertSvc interface {
+	InsertAdminData() error
 	InsertSimpleData() error
 	MockDataBanner()
 }
 
-type taskSvc struct {
+type taskInsertSvc struct {
 	db                   *sqlx.DB
 	userRepo             user_repo.UserRepo
 	userGreetingRepo     usergreeting_repo.UserGreetingRepo
@@ -49,7 +49,7 @@ type taskSvc struct {
 	transectionRepo      transaction_repo.TransactionRepo
 }
 
-func NewTaskSvc(
+func NewTaskInsertSvc(
 	db *sqlx.DB,
 	userRepo user_repo.UserRepo,
 	userGreetingRepo usergreeting_repo.UserGreetingRepo,
@@ -63,8 +63,8 @@ func NewTaskSvc(
 	debitCardSDetailRepo debitcarddetails_repo.DebitCardSDetailRepo,
 	debitCarddesignRepo debitcarddesign_repo.DebitCarddesignRepo,
 	transectionRepo transaction_repo.TransactionRepo,
-) TaskSvc {
-	return &taskSvc{
+) TaskInsertSvc {
+	return &taskInsertSvc{
 		db:                   db,
 		userRepo:             userRepo,
 		userGreetingRepo:     userGreetingRepo,
@@ -81,50 +81,58 @@ func NewTaskSvc(
 	}
 }
 
-func (svc *taskSvc) CreateTable() error {
-	// create user table
-	err := svc.createTableUser()
+func (svc *taskInsertSvc) InsertAdminData() error {
+	// begin transection
+	tx, err := svc.db.BeginTx(context.Background(), nil)
 	if err != nil {
+		tx.Rollback()
 		log.Println(err)
 		return err
 	}
-	log.Println("Table 'users' created successfully!")
 
-	// create banner table
-	err = svc.createTableBanner()
+	// insert user
+	userID, err := svc.insertUserAdmin(tx)
 	if err != nil {
 		log.Println(err)
 		return err
 	}
-	log.Println("Table 'banners' created successfully!")
+	log.Println("Insert 'users' successfully!")
 
-	// create account table
-	err = svc.createTableAccount()
+	// insert banner
+	err = svc.insertBanner(tx, userID)
 	if err != nil {
 		log.Println(err)
 		return err
 	}
-	log.Println("Table 'account' created successfully!")
+	log.Println("Insert 'banners' successfully!")
 
-	// create debit card table
-	err = svc.createTableDebitCard()
+	// insert acocunts
+	err = svc.insertAccount(tx, userID)
 	if err != nil {
 		log.Println(err)
 		return err
 	}
-	log.Println("Table 'debit card' created successfully!")
+	log.Println("Insert 'acocunts' successfully!")
 
-	// create transection table
-	err = svc.createTableTransection()
+	// insert debit card
+	err = svc.insertDebitCard(tx, userID)
 	if err != nil {
 		log.Println(err)
 		return err
 	}
-	log.Println("Table 'transection' created successfully!")
+	log.Println("Insert 'debit card' successfully!")
+
+	//commit transaction
+	err = tx.Commit()
+	if err != nil {
+		tx.Rollback()
+		log.Println(err)
+		return err
+	}
 	return nil
 }
 
-func (svc *taskSvc) InsertSimpleData() error {
+func (svc *taskInsertSvc) InsertSimpleData() error {
 	// begin transection
 	tx, err := svc.db.BeginTx(context.Background(), nil)
 	if err != nil {
@@ -175,74 +183,32 @@ func (svc *taskSvc) InsertSimpleData() error {
 	return nil
 }
 
-func (svc *taskSvc) createTableUser() error {
-	err := svc.userRepo.CreateTable()
+func (svc *taskInsertSvc) insertUser(tx *sql.Tx) (userID string, err error) {
+	timeNow := time.Now().UTC()
+	name := uuid.New()
+	userID, err = svc.userRepo.Insert(tx, orm.User{
+		Name:        name.String(),
+		Password:    types.NewNullString("123456"),
+		CreatedBy:   types.NewNullString("admin"),
+		CreatedDate: timeNow,
+		UpdatedBy:   types.NewNullString("admin"),
+		UpdatedDate: types.NewNullTime(timeNow),
+	})
 	if err != nil {
-		return err
+		return userID, err
 	}
-	err = svc.userGreetingRepo.CreateTable()
-	return err
+	err = svc.userGreetingRepo.Insert(tx, orm.UserGreeting{
+		UserID:      userID,
+		Greeting:    types.NewNullString("Have a nice day Clare"),
+		CreatedBy:   types.NewNullString("admin"),
+		CreatedDate: timeNow,
+		UpdatedBy:   types.NewNullString("admin"),
+		UpdatedDate: types.NewNullTime(timeNow),
+	})
+	return userID, err
 }
 
-func (svc *taskSvc) createTableBanner() error {
-	err := svc.bannerRepo.CreateTable()
-	return err
-}
-
-func (svc *taskSvc) createTableAccount() error {
-	err := svc.accountRepo.CreateTable()
-	if err != nil {
-		return err
-	}
-	err = svc.accountBalanceRepo.CreateTable()
-	if err != nil {
-		return err
-	}
-	err = svc.accountDetailRepo.CreateTable()
-	if err != nil {
-		return err
-	}
-	err = svc.accountFalgRepo.CreateTable()
-	if err != nil {
-		return err
-	}
-	err = svc.accountRepo.CreateTableView()
-	return err
-}
-
-func (svc *taskSvc) createTableDebitCard() error {
-	err := svc.debitcardRepo.CreateTable()
-	if err != nil {
-		return err
-	}
-	err = svc.debitcardstatuRepo.CreateTable()
-	if err != nil {
-		return err
-	}
-	err = svc.debitCardSDetailRepo.CreateTable()
-	if err != nil {
-		return err
-	}
-	err = svc.debitCarddesignRepo.CreateTable()
-	if err != nil {
-		return err
-	}
-	err = svc.debitcardRepo.CreateTableView()
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-func (svc *taskSvc) createTableTransection() error {
-	err := svc.transectionRepo.CreateTable()
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-func (svc *taskSvc) insertUser(tx *sql.Tx) (userID string, err error) {
+func (svc *taskInsertSvc) insertUserAdmin(tx *sql.Tx) (userID string, err error) {
 	timeNow := time.Now().UTC()
 	userID, err = svc.userRepo.InsertMock(tx, orm.User{
 		Name:        "admin",
@@ -266,7 +232,7 @@ func (svc *taskSvc) insertUser(tx *sql.Tx) (userID string, err error) {
 	return userID, err
 }
 
-func (svc *taskSvc) insertBanner(tx *sql.Tx, userID string) (err error) {
+func (svc *taskInsertSvc) insertBanner(tx *sql.Tx, userID string) (err error) {
 	timeNow := time.Now().UTC()
 	titles := []string{"Emily", "AbcdEfghiJKlmN", "Jone Kiersten", "Emily", "Emily", "MarkYu Gonzales"}
 	for i := range titles {
@@ -286,7 +252,7 @@ func (svc *taskSvc) insertBanner(tx *sql.Tx, userID string) (err error) {
 	return nil
 }
 
-func (svc *taskSvc) insertAccount(tx *sql.Tx, userID string) (err error) {
+func (svc *taskInsertSvc) insertAccount(tx *sql.Tx, userID string) (err error) {
 	timeNow := time.Now().UTC()
 	names := []string{
 		"Saving Account", "Saving Account",
@@ -348,7 +314,7 @@ func (svc *taskSvc) insertAccount(tx *sql.Tx, userID string) (err error) {
 	return nil
 }
 
-func (svc *taskSvc) insertDebitCard(tx *sql.Tx, userID string) (err error) {
+func (svc *taskInsertSvc) insertDebitCard(tx *sql.Tx, userID string) (err error) {
 	timeNow := time.Now().UTC()
 	names := []string{"My Salary", "For My Dream", "For My Dream", "For My Dream"}
 	status := []string{"In progress", "In progress", "", ""}
@@ -407,12 +373,12 @@ func (svc *taskSvc) insertDebitCard(tx *sql.Tx, userID string) (err error) {
 	return nil
 }
 
-func (svc *taskSvc) MockDataBanner() {
+func (svc *taskInsertSvc) MockDataBanner() {
 
 	var defaultUUID uuid.UUID // zero value
 
 	var banners []orm.Banner
-	for i := 0; i < 100000; i++ {
+	for i := 0; i < 50000; i++ {
 		banners = append(banners, orm.Banner{
 			UserID:      defaultUUID.String(),
 			Title:       types.NewNullString("test"),

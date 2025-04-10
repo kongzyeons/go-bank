@@ -36,7 +36,7 @@ func main() {
 	debitCarddesignRepo := debitcarddesign_repo.NewDebitCarddesignRepo(db)
 	transectionRepo := transaction_repo.NewTransactionRepo(db)
 
-	taskSvc := task_svc.NewTaskSvc(
+	taskSvc := task_svc.NewTaskInsertSvc(
 		db,
 		userRepo, userGreetingRepo,
 		bannerRepo,
@@ -45,14 +45,25 @@ func main() {
 		transectionRepo,
 	)
 
-	// mock data 20m
+	// insert simple data
 	fmt.Println("-------------------")
 	start := time.Now() // Start time
-	// chunkSize 10000
-	for i := 0; i < 20; i++ {
-		taskSvc.MockDataBanner()
+
+	for i := 0; i < 1000; i++ {
+		taskSvc.InsertSimpleData()
 	}
 	elapsed := time.Since(start) // Elapsed time
+	fmt.Println("Execution time:", elapsed)
+	fmt.Println("-------------------")
+
+	// mock data 2m
+	fmt.Println("-------------------")
+	start = time.Now() // Start time
+	// chunkSize 10000
+	for i := 0; i < 40; i++ {
+		taskSvc.MockDataBanner()
+	}
+	elapsed = time.Since(start) // Elapsed time
 	fmt.Println("Execution time:", elapsed)
 	fmt.Println("-------------------")
 }
